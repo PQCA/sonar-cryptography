@@ -16,6 +16,8 @@ services:
       SONAR_JDBC_URL: jdbc:postgresql://db:5432/sonar
       SONAR_JDBC_USERNAME: sonar
       SONAR_JDBC_PASSWORD: sonar
+      SONAR_CE_JAVAOPTS: "-Xmx2g -Xms512m"
+      SONAR_WEB_JAVAOPTS: "-Xmx2g -Xms512m"
     command:
       - "-Dsonar.es.bootstrap.checks.disable=true"
   db:
