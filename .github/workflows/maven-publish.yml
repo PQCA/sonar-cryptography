@@ -3,6 +3,10 @@
 
 name: Publish package to GitHub Packages
 
+permissions:
+  contents: read
+  packages: write
+
 on:
   release:
     types: [published]
