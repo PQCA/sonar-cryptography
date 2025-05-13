@@ -167,8 +167,8 @@
                         <licenseHeader> <!-- specify either content or file, but not both -->
                             <content>
 /*
- * SonarQube Cryptography Plugin
- * Copyright (C) $YEAR IBM
+ * Sonar Cryptography Plugin
+ * Copyright (C) $YEAR PQCA
  *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
