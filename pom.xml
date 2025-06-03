@@ -49,8 +49,8 @@
         <sonar.java.version>8.15.0.39343</sonar.java.version>
         <sonar.python.version>5.4.0.22255</sonar.python.version>
 
-        <junit.platform.version>1.12.2</junit.platform.version>
-        <junit.jupiter.version>5.12.2</junit.jupiter.version>
+        <junit.platform.version>1.13.0</junit.platform.version>
+        <junit.jupiter.version>5.13.0</junit.jupiter.version>
 
         <google-java-format.version>1.27.0</google-java-format.version>
     </properties>
