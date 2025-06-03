@@ -49,9 +49,6 @@
         <sonar.java.version>8.15.0.39343</sonar.java.version>
         <sonar.python.version>5.4.0.22255</sonar.python.version>
 
-        <junit.platform.version>1.13.0</junit.platform.version>
-        <junit.jupiter.version>5.13.0</junit.jupiter.version>
-
         <google-java-format.version>1.27.0</google-java-format.version>
     </properties>
 
@@ -62,6 +59,18 @@
             <url>https://maven.pkg.github.com/PQCA/sonar-cryptography</url>
         </repository>
     </distributionManagement>
+
+    <dependencyManagement>
+      <dependencies>
+        <dependency>
+          <groupId>org.junit</groupId>
+          <artifactId>junit-bom</artifactId>
+          <version>5.13.0</version>
+          <type>pom</type>
+          <scope>import</scope>
+        </dependency>
+      </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <!-- ide annotations -->
@@ -109,19 +118,16 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
-            <version>${junit.jupiter.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
-            <version>${junit.jupiter.version}</version>
             <scope>test</scope>
         </dependency> 
         <dependency>
             <groupId>org.junit.platform</groupId>
             <artifactId>junit-platform-launcher</artifactId>
-            <version>${junit.platform.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
