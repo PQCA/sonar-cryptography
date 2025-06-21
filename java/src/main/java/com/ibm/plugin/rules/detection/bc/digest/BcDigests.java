@@ -105,7 +105,8 @@ public final class BcDigests {
         infoMap.putKey("XoodyakDigest");
     }
 
-    private static final List<IDetectionRule<Tree>> regularConstructors(
+    @Nonnull
+    private static List<IDetectionRule<Tree>> regularConstructors(
             @Nullable IDetectionContext detectionValueContext) {
         List<IDetectionRule<Tree>> constructorsList = new LinkedList<>();
         IDetectionContext context =
@@ -133,7 +134,8 @@ public final class BcDigests {
         return constructorsList;
     }
 
-    private static final List<IDetectionRule<Tree>> otherConstructors(
+    @Nonnull
+    private static List<IDetectionRule<Tree>> otherConstructors(
             @Nullable IDetectionContext detectionValueContext) {
         List<IDetectionRule<Tree>> constructorsList = new LinkedList<>();
         IDetectionContext context =

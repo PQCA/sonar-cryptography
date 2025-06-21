@@ -31,6 +31,7 @@ import com.ibm.plugin.rules.detection.bc.aeadcipher.BcKGCMBlockCipher;
 import com.ibm.plugin.rules.detection.bc.aeadcipher.BcOCBBlockCipher;
 import com.ibm.plugin.rules.detection.bc.asymmetricblockcipher.BcAsymmetricBlockCipher;
 import com.ibm.plugin.rules.detection.bc.asymmetricblockcipher.BcBufferedAsymmetricBlockCipher;
+import com.ibm.plugin.rules.detection.bc.asymmetrickeypair.BcAsymmetricCipherKeyPairGenerators;
 import com.ibm.plugin.rules.detection.bc.basicagreement.BcBasicAgreement;
 import com.ibm.plugin.rules.detection.bc.blockcipher.BcBlockCipher;
 import com.ibm.plugin.rules.detection.bc.blockcipher.BcBlockCipherEngine;
@@ -96,6 +97,8 @@ public final class BouncyCastleDetectionRules {
                         BcDSA.rules().stream(),
                         // Signer
                         BcSigner.rules().stream(),
+                        // Asymmetric Key Pair Generators
+                        BcAsymmetricCipherKeyPairGenerators.rules().stream(),
                         // Other
                         BcIESEngine.rules().stream(),
                         BcSM2Engine.rules().stream())
