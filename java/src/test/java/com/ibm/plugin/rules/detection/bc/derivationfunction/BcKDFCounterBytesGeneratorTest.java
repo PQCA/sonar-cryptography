@@ -63,30 +63,74 @@ class BcKDFCounterBytesGeneratorTest extends TestBase {
             int findingId,
             @Nonnull DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> detectionStore,
             @Nonnull List<INode> nodes) {
-
         if (findingId == 0) {
             /*
              * Detection Store
              */
+            assertThat(detectionStore).isNotNull();
+            assertThat(detectionStore.getDetectionValues()).hasSize(1);
+            assertThat(detectionStore.getDetectionValueContext()).isInstanceOf(DigestContext.class);
+            IValue<Tree> value0 = detectionStore.getDetectionValues().get(0);
+            assertThat(value0).isInstanceOf(ValueAction.class);
+            assertThat(value0.asString()).isEqualTo("SHA256Digest");
 
+            /*
+             * Translation
+             */
+            assertThat(nodes).hasSize(1);
+
+            // MessageDigest
+            INode messageDigestNode = nodes.get(0);
+            assertThat(messageDigestNode.getKind()).isEqualTo(MessageDigest.class);
+            assertThat(messageDigestNode.getChildren()).hasSize(4);
+            assertThat(messageDigestNode.asString()).isEqualTo("SHA256");
+
+            // BlockSize under MessageDigest
+            INode blockSizeNode = messageDigestNode.getChildren().get(BlockSize.class);
+            assertThat(blockSizeNode).isNotNull();
+            assertThat(blockSizeNode.getChildren()).isEmpty();
+            assertThat(blockSizeNode.asString()).isEqualTo("512");
+
+            // DigestSize under MessageDigest
+            INode digestSizeNode = messageDigestNode.getChildren().get(DigestSize.class);
+            assertThat(digestSizeNode).isNotNull();
+            assertThat(digestSizeNode.getChildren()).isEmpty();
+            assertThat(digestSizeNode.asString()).isEqualTo("256");
+
+            // Oid under MessageDigest
+            INode oidNode = messageDigestNode.getChildren().get(Oid.class);
+            assertThat(oidNode).isNotNull();
+            assertThat(oidNode.getChildren()).isEmpty();
+            assertThat(oidNode.asString()).isEqualTo("2.16.840.1.101.3.4.2.1");
+
+            // Digest under MessageDigest
+            INode digestNode = messageDigestNode.getChildren().get(Digest.class);
+            assertThat(digestNode).isNotNull();
+            assertThat(digestNode.getChildren()).isEmpty();
+            assertThat(digestNode.asString()).isEqualTo("DIGEST");
+        } else if (findingId == 1) {
+            /*
+             * Detection Store
+             */
+            assertThat(detectionStore).isNotNull();
             assertThat(detectionStore.getDetectionValues()).hasSize(1);
             assertThat(detectionStore.getDetectionValueContext()).isInstanceOf(MacContext.class);
             IValue<Tree> value0 = detectionStore.getDetectionValues().get(0);
             assertThat(value0).isInstanceOf(ValueAction.class);
             assertThat(value0.asString()).isEqualTo("HMac");
 
-            DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> store_1 =
+            DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> store1 =
                     getStoreOfValueType(ValueAction.class, detectionStore.getChildren());
-            assertThat(store_1.getDetectionValues()).hasSize(1);
-            assertThat(store_1.getDetectionValueContext()).isInstanceOf(DigestContext.class);
-            IValue<Tree> value0_1 = store_1.getDetectionValues().get(0);
-            assertThat(value0_1).isInstanceOf(ValueAction.class);
-            assertThat(value0_1.asString()).isEqualTo("SHA256Digest");
+            assertThat(store1).isNotNull();
+            assertThat(store1.getDetectionValues()).hasSize(1);
+            assertThat(store1.getDetectionValueContext()).isInstanceOf(DigestContext.class);
+            IValue<Tree> value01 = store1.getDetectionValues().get(0);
+            assertThat(value01).isInstanceOf(ValueAction.class);
+            assertThat(value01.asString()).isEqualTo("SHA256Digest");
 
             /*
              * Translation
              */
-
             assertThat(nodes).hasSize(1);
 
             // Mac
@@ -95,11 +139,11 @@ class BcKDFCounterBytesGeneratorTest extends TestBase {
             assertThat(macNode.getChildren()).hasSize(3);
             assertThat(macNode.asString()).isEqualTo("HMAC-SHA256");
 
-            // Oid under Mac
-            INode oidNode = macNode.getChildren().get(Oid.class);
-            assertThat(oidNode).isNotNull();
-            assertThat(oidNode.getChildren()).isEmpty();
-            assertThat(oidNode.asString()).isEqualTo("1.2.840.113549.2.9");
+            // Tag under Mac
+            INode tagNode = macNode.getChildren().get(Tag.class);
+            assertThat(tagNode).isNotNull();
+            assertThat(tagNode.getChildren()).isEmpty();
+            assertThat(tagNode.asString()).isEqualTo("TAG");
 
             // MessageDigest under Mac
             INode messageDigestNode = macNode.getChildren().get(MessageDigest.class);
@@ -107,11 +151,11 @@ class BcKDFCounterBytesGeneratorTest extends TestBase {
             assertThat(messageDigestNode.getChildren()).hasSize(4);
             assertThat(messageDigestNode.asString()).isEqualTo("SHA256");
 
-            // Oid under MessageDigest under Mac
-            INode oidNode1 = messageDigestNode.getChildren().get(Oid.class);
-            assertThat(oidNode1).isNotNull();
-            assertThat(oidNode1.getChildren()).isEmpty();
-            assertThat(oidNode1.asString()).isEqualTo("2.16.840.1.101.3.4.2.1");
+            // BlockSize under MessageDigest under Mac
+            INode blockSizeNode = messageDigestNode.getChildren().get(BlockSize.class);
+            assertThat(blockSizeNode).isNotNull();
+            assertThat(blockSizeNode.getChildren()).isEmpty();
+            assertThat(blockSizeNode.asString()).isEqualTo("512");
 
             // Digest under MessageDigest under Mac
             INode digestNode = messageDigestNode.getChildren().get(Digest.class);
@@ -119,11 +163,11 @@ class BcKDFCounterBytesGeneratorTest extends TestBase {
             assertThat(digestNode.getChildren()).isEmpty();
             assertThat(digestNode.asString()).isEqualTo("DIGEST");
 
-            // BlockSize under MessageDigest under Mac
-            INode blockSizeNode = messageDigestNode.getChildren().get(BlockSize.class);
-            assertThat(blockSizeNode).isNotNull();
-            assertThat(blockSizeNode.getChildren()).isEmpty();
-            assertThat(blockSizeNode.asString()).isEqualTo("512");
+            // Oid under MessageDigest under Mac
+            INode oidNode = messageDigestNode.getChildren().get(Oid.class);
+            assertThat(oidNode).isNotNull();
+            assertThat(oidNode.getChildren()).isEmpty();
+            assertThat(oidNode.asString()).isEqualTo("2.16.840.1.101.3.4.2.1");
 
             // DigestSize under MessageDigest under Mac
             INode digestSizeNode = messageDigestNode.getChildren().get(DigestSize.class);
@@ -131,42 +175,43 @@ class BcKDFCounterBytesGeneratorTest extends TestBase {
             assertThat(digestSizeNode.getChildren()).isEmpty();
             assertThat(digestSizeNode.asString()).isEqualTo("256");
 
-            // Tag under Mac
-            INode tagNode = macNode.getChildren().get(Tag.class);
-            assertThat(tagNode).isNotNull();
-            assertThat(tagNode.getChildren()).isEmpty();
-            assertThat(tagNode.asString()).isEqualTo("TAG");
-        } else if (findingId == 1) {
+            // Oid under Mac
+            INode oidNode1 = macNode.getChildren().get(Oid.class);
+            assertThat(oidNode1).isNotNull();
+            assertThat(oidNode1.getChildren()).isEmpty();
+            assertThat(oidNode1.asString()).isEqualTo("1.2.840.113549.2.9");
+        } else if (findingId == 2) {
             /*
              * Detection Store
              */
-
+            assertThat(detectionStore).isNotNull();
             assertThat(detectionStore.getDetectionValues()).hasSize(1);
             assertThat(detectionStore.getDetectionValueContext()).isInstanceOf(KeyContext.class);
             IValue<Tree> value0 = detectionStore.getDetectionValues().get(0);
             assertThat(value0).isInstanceOf(ValueAction.class);
             assertThat(value0.asString()).isEqualTo("KDFCounterBytesGenerator");
 
-            DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> store_1 =
+            DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> store1 =
                     getStoreOfValueType(ValueAction.class, detectionStore.getChildren());
-            assertThat(store_1.getDetectionValues()).hasSize(1);
-            assertThat(store_1.getDetectionValueContext()).isInstanceOf(MacContext.class);
-            IValue<Tree> value0_1 = store_1.getDetectionValues().get(0);
-            assertThat(value0_1).isInstanceOf(ValueAction.class);
-            assertThat(value0_1.asString()).isEqualTo("HMac");
+            assertThat(store1).isNotNull();
+            assertThat(store1.getDetectionValues()).hasSize(1);
+            assertThat(store1.getDetectionValueContext()).isInstanceOf(MacContext.class);
+            IValue<Tree> value01 = store1.getDetectionValues().get(0);
+            assertThat(value01).isInstanceOf(ValueAction.class);
+            assertThat(value01.asString()).isEqualTo("HMac");
 
-            DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> store_1_1 =
-                    getStoreOfValueType(ValueAction.class, store_1.getChildren());
-            assertThat(store_1_1.getDetectionValues()).hasSize(1);
-            assertThat(store_1_1.getDetectionValueContext()).isInstanceOf(DigestContext.class);
-            IValue<Tree> value0_1_1 = store_1_1.getDetectionValues().get(0);
-            assertThat(value0_1_1).isInstanceOf(ValueAction.class);
-            assertThat(value0_1_1.asString()).isEqualTo("SHA256Digest");
+            DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> store11 =
+                    getStoreOfValueType(ValueAction.class, store1.getChildren());
+            assertThat(store11).isNotNull();
+            assertThat(store11.getDetectionValues()).hasSize(1);
+            assertThat(store11.getDetectionValueContext()).isInstanceOf(DigestContext.class);
+            IValue<Tree> value011 = store11.getDetectionValues().get(0);
+            assertThat(value011).isInstanceOf(ValueAction.class);
+            assertThat(value011.asString()).isEqualTo("SHA256Digest");
 
             /*
              * Translation
              */
-
             assertThat(nodes).hasSize(1);
 
             // KeyDerivationFunction
@@ -205,17 +250,17 @@ class BcKDFCounterBytesGeneratorTest extends TestBase {
             assertThat(digestNode.getChildren()).isEmpty();
             assertThat(digestNode.asString()).isEqualTo("DIGEST");
 
-            // DigestSize under MessageDigest under Mac under KeyDerivationFunction
-            INode digestSizeNode = messageDigestNode.getChildren().get(DigestSize.class);
-            assertThat(digestSizeNode).isNotNull();
-            assertThat(digestSizeNode.getChildren()).isEmpty();
-            assertThat(digestSizeNode.asString()).isEqualTo("256");
-
             // Oid under MessageDigest under Mac under KeyDerivationFunction
             INode oidNode = messageDigestNode.getChildren().get(Oid.class);
             assertThat(oidNode).isNotNull();
             assertThat(oidNode.getChildren()).isEmpty();
             assertThat(oidNode.asString()).isEqualTo("2.16.840.1.101.3.4.2.1");
+
+            // DigestSize under MessageDigest under Mac under KeyDerivationFunction
+            INode digestSizeNode = messageDigestNode.getChildren().get(DigestSize.class);
+            assertThat(digestSizeNode).isNotNull();
+            assertThat(digestSizeNode.getChildren()).isEmpty();
+            assertThat(digestSizeNode.asString()).isEqualTo("256");
 
             // Oid under Mac under KeyDerivationFunction
             INode oidNode1 = macNode.getChildren().get(Oid.class);

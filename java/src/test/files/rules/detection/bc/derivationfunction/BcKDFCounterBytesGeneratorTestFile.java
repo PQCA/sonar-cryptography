@@ -10,7 +10,7 @@ public class BcKDFCounterBytesGeneratorTestFile {
 
     public static void main(String[] args) {
         // Define the MAC algorithm to be used (e.g., HMAC with SHA-256)
-        Digest hash = new SHA256Digest();
+        Digest hash = new SHA256Digest(); // Noncompliant {{(MessageDigest) SHA256}}
         Mac mac = new HMac(hash); // Noncompliant {{(Mac) HMAC-SHA256}}
 
         // Input keying material (IKM) - your input key

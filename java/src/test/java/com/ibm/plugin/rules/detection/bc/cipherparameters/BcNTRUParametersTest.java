@@ -19,6 +19,8 @@
  */
 package com.ibm.plugin.rules.detection.bc.cipherparameters;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.ibm.engine.detection.DetectionStore;
 import com.ibm.engine.model.IValue;
 import com.ibm.engine.model.OperationMode;
@@ -35,17 +37,14 @@ import com.ibm.mapper.model.functionality.Digest;
 import com.ibm.mapper.model.functionality.Encrypt;
 import com.ibm.plugin.TestBase;
 import com.ibm.plugin.rules.detection.bc.BouncyCastleJars;
+import java.util.List;
+import javax.annotation.Nonnull;
 import org.junit.jupiter.api.Test;
 import org.sonar.java.checks.verifier.CheckVerifier;
 import org.sonar.plugins.java.api.JavaCheck;
 import org.sonar.plugins.java.api.JavaFileScannerContext;
 import org.sonar.plugins.java.api.semantic.Symbol;
 import org.sonar.plugins.java.api.tree.Tree;
-
-import javax.annotation.Nonnull;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 class BcNTRUParametersTest extends TestBase {
     @Test
@@ -74,7 +73,8 @@ class BcNTRUParametersTest extends TestBase {
             assertThat(value0).isInstanceOf(ValueAction.class);
             assertThat(value0.asString()).isEqualTo("AESEngine");
 
-            DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> store1 = getStoreOfValueType(OperationMode.class, detectionStore.getChildren());
+            DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> store1 =
+                    getStoreOfValueType(OperationMode.class, detectionStore.getChildren());
             assertThat(store1).isNotNull();
             assertThat(store1.getDetectionValues()).hasSize(1);
             assertThat(store1.getDetectionValueContext()).isInstanceOf(CipherContext.class);
@@ -196,7 +196,8 @@ class BcNTRUParametersTest extends TestBase {
             assertThat(value0).isInstanceOf(ValueAction.class);
             assertThat(value0.asString()).isEqualTo("AESEngine");
 
-            DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> store1 = getStoreOfValueType(OperationMode.class, detectionStore.getChildren());
+            DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> store1 =
+                    getStoreOfValueType(OperationMode.class, detectionStore.getChildren());
             assertThat(store1).isNotNull();
             assertThat(store1.getDetectionValues()).hasSize(1);
             assertThat(store1.getDetectionValueContext()).isInstanceOf(CipherContext.class);
@@ -318,7 +319,8 @@ class BcNTRUParametersTest extends TestBase {
             assertThat(value0).isInstanceOf(ValueAction.class);
             assertThat(value0.asString()).isEqualTo("AESEngine");
 
-            DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> store1 = getStoreOfValueType(OperationMode.class, detectionStore.getChildren());
+            DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> store1 =
+                    getStoreOfValueType(OperationMode.class, detectionStore.getChildren());
             assertThat(store1).isNotNull();
             assertThat(store1.getDetectionValues()).hasSize(1);
             assertThat(store1.getDetectionValueContext()).isInstanceOf(CipherContext.class);
@@ -440,7 +442,8 @@ class BcNTRUParametersTest extends TestBase {
             assertThat(value0).isInstanceOf(ValueAction.class);
             assertThat(value0.asString()).isEqualTo("AESEngine");
 
-            DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> store1 = getStoreOfValueType(OperationMode.class, detectionStore.getChildren());
+            DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> store1 =
+                    getStoreOfValueType(OperationMode.class, detectionStore.getChildren());
             assertThat(store1).isNotNull();
             assertThat(store1.getDetectionValues()).hasSize(1);
             assertThat(store1.getDetectionValueContext()).isInstanceOf(CipherContext.class);
@@ -562,7 +565,8 @@ class BcNTRUParametersTest extends TestBase {
             assertThat(value0).isInstanceOf(ValueAction.class);
             assertThat(value0.asString()).isEqualTo("AESEngine");
 
-            DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> store1 = getStoreOfValueType(OperationMode.class, detectionStore.getChildren());
+            DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> store1 =
+                    getStoreOfValueType(OperationMode.class, detectionStore.getChildren());
             assertThat(store1).isNotNull();
             assertThat(store1.getDetectionValues()).hasSize(1);
             assertThat(store1.getDetectionValueContext()).isInstanceOf(CipherContext.class);
@@ -684,7 +688,8 @@ class BcNTRUParametersTest extends TestBase {
             assertThat(value0).isInstanceOf(ValueAction.class);
             assertThat(value0.asString()).isEqualTo("AESEngine");
 
-            DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> store1 = getStoreOfValueType(OperationMode.class, detectionStore.getChildren());
+            DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> store1 =
+                    getStoreOfValueType(OperationMode.class, detectionStore.getChildren());
             assertThat(store1).isNotNull();
             assertThat(store1.getDetectionValues()).hasSize(1);
             assertThat(store1.getDetectionValueContext()).isInstanceOf(CipherContext.class);
