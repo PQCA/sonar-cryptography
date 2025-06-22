@@ -64,7 +64,7 @@ public final class JavaDigestContextTranslator extends JavaAbstractLibraryTransl
             @Nonnull IDetectionContext detectionContext,
             @Nonnull DetectionLocation detectionLocation) {
         if (value instanceof ValueAction && detectionContext instanceof DetectionContext context) {
-            String kind = context.get("kind").map(k -> k).orElse("");
+            String kind = context.get("kind").orElse("");
             switch (kind) {
                 case "MGF1" -> {
                     BcDigestMapper bcDigestsMapper = new BcDigestMapper();

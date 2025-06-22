@@ -37,6 +37,7 @@ import com.ibm.plugin.rules.detection.bc.blockcipher.BcBlockCipher;
 import com.ibm.plugin.rules.detection.bc.blockcipher.BcBlockCipherEngine;
 import com.ibm.plugin.rules.detection.bc.bufferedblockcipher.BcBufferedBlockCipher;
 import com.ibm.plugin.rules.detection.bc.derivationfunction.BcDerivationFunction;
+import com.ibm.plugin.rules.detection.bc.digest.BcDigests;
 import com.ibm.plugin.rules.detection.bc.dsa.BcDSA;
 import com.ibm.plugin.rules.detection.bc.encapsulatedsecret.BcEncapsulatedSecretExtractor;
 import com.ibm.plugin.rules.detection.bc.encapsulatedsecret.BcEncapsulatedSecretGenerator;
@@ -80,6 +81,8 @@ public final class BouncyCastleDetectionRules {
                         BcBufferedBlockCipher.rules().stream(),
                         // StreamCipher
                         BcStreamCipherEngine.rules().stream(),
+                        // Digest
+                        BcDigests.rules().stream(),
                         // Mac
                         BcMac.rules().stream(),
                         // PBE
