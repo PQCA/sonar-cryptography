@@ -22,15 +22,6 @@ package com.ibm.plugin.utils;
 import com.ibm.engine.detection.DetectionStore;
 import com.ibm.engine.model.IValue;
 import com.ibm.mapper.model.INode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sonar.plugins.java.api.JavaCheck;
-import org.sonar.plugins.java.api.JavaFileScannerContext;
-import org.sonar.plugins.java.api.semantic.Symbol;
-import org.sonar.plugins.java.api.tree.Tree;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
@@ -41,6 +32,14 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sonar.plugins.java.api.JavaCheck;
+import org.sonar.plugins.java.api.JavaFileScannerContext;
+import org.sonar.plugins.java.api.semantic.Symbol;
+import org.sonar.plugins.java.api.tree.Tree;
 
 public class GenerateAssertsHelper {
     private static final Logger LOGGER = LoggerFactory.getLogger(GenerateAssertsHelper.class);
@@ -55,8 +54,8 @@ public class GenerateAssertsHelper {
      * Call this function inside the {@code asserts} function of a test. It will assume that the
      * input trees correspond to the ground truth of the detection store and translation. Therefore,
      * it will generate the code of all the assertions to verify that they match this ground truth.
-     * The code of the assertions is added to your clipboard so you can paste them in your
-     * test file (they are also stored in a temporary file in {@code target}).
+     * The code of the assertions is added to your clipboard so you can paste them in your test file
+     * (they are also stored in a temporary file in {@code target}).
      *
      * @param detectionStore - The root node of the tree of detection stores
      * @param translationRoots - The list of root nodes of translation trees
@@ -89,7 +88,8 @@ public class GenerateAssertsHelper {
                     * Translation
                     */
                     """);
-            generateNodeAssertions(writer, translationRoots, INITIAL_TRANSLATION_NODES_VARIABLE_NAME);
+            generateNodeAssertions(
+                    writer, translationRoots, INITIAL_TRANSLATION_NODES_VARIABLE_NAME);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -108,6 +108,7 @@ public class GenerateAssertsHelper {
             @Nonnull DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> detectionStore,
             @Nonnull String detectionStoreVarName)
             throws IOException {
+        writer.write(String.format("assertThat(%s).isNotNull();%n", detectionStoreVarName));
         writer.write(
                 String.format(
                         "assertThat(%s.getDetectionValues()).hasSize(%d);%n",
@@ -179,9 +180,8 @@ public class GenerateAssertsHelper {
     }
 
     private static void generateNodeAssertions(
-            @Nonnull FileWriter writer,
-            @Nonnull List<INode> nodes,
-            @Nonnull String nodeVarName) throws IOException {
+            @Nonnull FileWriter writer, @Nonnull List<INode> nodes, @Nonnull String nodeVarName)
+            throws IOException {
         writer.write(String.format("assertThat(%s).hasSize(%d);%n%n", nodeVarName, nodes.size()));
 
         for (int i = 0; i < nodes.size(); i++) {

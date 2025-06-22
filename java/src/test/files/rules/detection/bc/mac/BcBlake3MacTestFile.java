@@ -27,7 +27,7 @@ import org.bouncycastle.crypto.params.KeyParameter;
 public class BcBlake3MacTestFile {
 
     public static byte[] generateBlake3Mac(byte[] key, byte[] message) {
-        Blake3Digest blake3Digest = new Blake3Digest();
+        Blake3Digest blake3Digest = new Blake3Digest(); // Noncompliant {{(MessageDigest) BLAKE3}}
         KeyParameter keyParameter = new KeyParameter(key);
 
         Mac blake3Mac = new Blake3Mac(blake3Digest); // Noncompliant {{(Mac) BLAKE3}}

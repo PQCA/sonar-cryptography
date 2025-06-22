@@ -19,6 +19,8 @@
  */
 package com.ibm.plugin.rules.detection.bc.signer;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.ibm.engine.detection.DetectionStore;
 import com.ibm.engine.model.IValue;
 import com.ibm.engine.model.OperationMode;
@@ -37,17 +39,14 @@ import com.ibm.mapper.model.functionality.Digest;
 import com.ibm.mapper.model.functionality.Sign;
 import com.ibm.plugin.TestBase;
 import com.ibm.plugin.rules.detection.bc.BouncyCastleJars;
+import java.util.List;
+import javax.annotation.Nonnull;
 import org.junit.jupiter.api.Test;
 import org.sonar.java.checks.verifier.CheckVerifier;
 import org.sonar.plugins.java.api.JavaCheck;
 import org.sonar.plugins.java.api.JavaFileScannerContext;
 import org.sonar.plugins.java.api.semantic.Symbol;
 import org.sonar.plugins.java.api.tree.Tree;
-
-import javax.annotation.Nonnull;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 class BcGenericSignerTest extends TestBase {
     @Test
@@ -138,27 +137,33 @@ class BcGenericSignerTest extends TestBase {
              * Detection Store
              */
             assertThat(detectionStore.getDetectionValues()).hasSize(1);
-            assertThat(detectionStore.getDetectionValueContext()).isInstanceOf(SignatureContext.class);
+            assertThat(detectionStore.getDetectionValueContext())
+                    .isInstanceOf(SignatureContext.class);
             IValue<Tree> value0 = detectionStore.getDetectionValues().get(0);
             assertThat(value0).isInstanceOf(ValueAction.class);
             assertThat(value0.asString()).isEqualTo("GenericSigner");
 
-            DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> store1 = getStoreOfValueType(OperationMode.class, detectionStore.getChildren());
+            DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> store1 =
+                    getStoreOfValueType(OperationMode.class, detectionStore.getChildren());
+            assertThat(store1).isNotNull();
             assertThat(store1.getDetectionValues()).hasSize(1);
             assertThat(store1.getDetectionValueContext()).isInstanceOf(SignatureContext.class);
             IValue<Tree> value01 = store1.getDetectionValues().get(0);
             assertThat(value01).isInstanceOf(OperationMode.class);
             assertThat(value01.asString()).isEqualTo("1");
 
-            List<DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext>> stores = getStoresOfValueType(ValueAction.class, detectionStore.getChildren());
-            for (final DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> store : stores) {
+            List<DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext>> stores =
+                    getStoresOfValueType(ValueAction.class, detectionStore.getChildren());
+            assertThat(stores).isNotNull();
+            for (final DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> store :
+                    stores) {
                 assertThat(store.getDetectionValues()).hasSize(1);
                 IValue<Tree> value02 = store.getDetectionValues().get(0);
                 assertThat(value02).isInstanceOf(ValueAction.class);
-                assertThat(value02.asString()).satisfiesAnyOf(
-                        name -> assertThat(name).isEqualTo("RSAEngine"),
-                        name -> assertThat(name).isEqualTo("SHA256Digest")
-                );
+                assertThat(value02.asString())
+                        .satisfiesAnyOf(
+                                name -> assertThat(name).isEqualTo("RSAEngine"),
+                                name -> assertThat(name).isEqualTo("SHA256Digest"));
                 if (value02.asString().equals("RSAEngine")) {
                     assertThat(store.getDetectionValueContext()).isInstanceOf(CipherContext.class);
                 } else {
@@ -218,7 +223,6 @@ class BcGenericSignerTest extends TestBase {
             assertThat(blockSizeNode).isNotNull();
             assertThat(blockSizeNode.getChildren()).isEmpty();
             assertThat(blockSizeNode.asString()).isEqualTo("512");
-
         }
     }
 }
