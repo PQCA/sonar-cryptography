@@ -29,8 +29,10 @@ import com.ibm.engine.model.context.CipherContext;
 import com.ibm.engine.model.context.DigestContext;
 import com.ibm.mapper.model.INode;
 import com.ibm.mapper.model.MessageDigest;
+import com.ibm.mapper.model.Oid;
 import com.ibm.mapper.model.Padding;
 import com.ibm.mapper.model.PublicKeyEncryption;
+import com.ibm.mapper.model.functionality.Digest;
 import com.ibm.mapper.model.functionality.Encrypt;
 import com.ibm.plugin.TestBase;
 import com.ibm.plugin.rules.detection.bc.BouncyCastleJars;
@@ -60,87 +62,206 @@ class BcBufferedAsymmetricBlockCipherTest extends TestBase {
             int findingId,
             @Nonnull DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> detectionStore,
             @Nonnull List<INode> nodes) {
-        /**
-         * Optimally, we shouldn't have these direct detections of engines, as they appear in the
-         * depending detection rules
-         */
-        if (findingId == 0 || findingId == 1) {
-            return;
+        if (findingId == 0) {
+            /*
+             * Detection Store
+             */
+            assertThat(detectionStore.getDetectionValues()).hasSize(1);
+            assertThat(detectionStore.getDetectionValueContext()).isInstanceOf(CipherContext.class);
+            IValue<Tree> value0 = detectionStore.getDetectionValues().get(0);
+            assertThat(value0).isInstanceOf(ValueAction.class);
+            assertThat(value0.asString()).isEqualTo("RSAEngine");
+
+            /*
+             * Translation
+             */
+            assertThat(nodes).hasSize(1);
+
+            // PublicKeyEncryption
+            INode publicKeyEncryptionNode = nodes.get(0);
+            assertThat(publicKeyEncryptionNode.getKind()).isEqualTo(PublicKeyEncryption.class);
+            assertThat(publicKeyEncryptionNode.getChildren()).hasSize(1);
+            assertThat(publicKeyEncryptionNode.asString()).isEqualTo("RSA");
+
+            // Oid under PublicKeyEncryption
+            INode oidNode = publicKeyEncryptionNode.getChildren().get(Oid.class);
+            assertThat(oidNode).isNotNull();
+            assertThat(oidNode.getChildren()).isEmpty();
+            assertThat(oidNode.asString()).isEqualTo("1.2.840.113549.1.1.1");
+        } else if (findingId == 1) {
+            /*
+             * Detection Store
+             */
+            assertThat(detectionStore.getDetectionValues()).hasSize(1);
+            assertThat(detectionStore.getDetectionValueContext()).isInstanceOf(CipherContext.class);
+            IValue<Tree> value0 = detectionStore.getDetectionValues().get(0);
+            assertThat(value0).isInstanceOf(ValueAction.class);
+            assertThat(value0.asString()).isEqualTo("OAEPEncoding");
+
+            List<DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext>> stores =
+                    getStoresOfValueType(ValueAction.class, detectionStore.getChildren());
+            assertThat(stores).isNotNull();
+            for (final DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> store :
+                    stores) {
+                assertThat(store.getDetectionValues()).hasSize(1);
+                IValue<Tree> value02 = store.getDetectionValues().get(0);
+                assertThat(value02).isInstanceOf(ValueAction.class);
+                assertThat(value02.asString())
+                        .satisfiesAnyOf(
+                                name -> assertThat(name).isEqualTo("RSAEngine"),
+                                name -> assertThat(name).isEqualTo("SHA3Digest"));
+                if (value02.asString().equals("RSAEngine")) {
+                    assertThat(store.getDetectionValueContext()).isInstanceOf(CipherContext.class);
+                } else {
+                    assertThat(store.getDetectionValueContext()).isInstanceOf(DigestContext.class);
+                }
+            }
+
+            /*
+             * Translation
+             */
+            assertThat(nodes).hasSize(1);
+
+            // PublicKeyEncryption
+            INode publicKeyEncryptionNode = nodes.get(0);
+            assertThat(publicKeyEncryptionNode.getKind()).isEqualTo(PublicKeyEncryption.class);
+            assertThat(publicKeyEncryptionNode.getChildren()).hasSize(3);
+            assertThat(publicKeyEncryptionNode.asString()).isEqualTo("RSA-OAEP");
+
+            // Padding under PublicKeyEncryption
+            INode paddingNode = publicKeyEncryptionNode.getChildren().get(Padding.class);
+            assertThat(paddingNode).isNotNull();
+            assertThat(paddingNode.getChildren()).isEmpty();
+            assertThat(paddingNode.asString()).isEqualTo("OAEP");
+
+            // Oid under PublicKeyEncryption
+            INode oidNode = publicKeyEncryptionNode.getChildren().get(Oid.class);
+            assertThat(oidNode).isNotNull();
+            assertThat(oidNode.getChildren()).isEmpty();
+            assertThat(oidNode.asString()).isEqualTo("1.2.840.113549.1.1.7");
+
+            // MessageDigest under PublicKeyEncryption
+            INode messageDigestNode =
+                    publicKeyEncryptionNode.getChildren().get(MessageDigest.class);
+            assertThat(messageDigestNode).isNotNull();
+            assertThat(messageDigestNode.getChildren()).hasSize(1);
+            assertThat(messageDigestNode.asString()).isEqualTo("SHA3");
+
+            // Digest under MessageDigest under PublicKeyEncryption
+            INode digestNode = messageDigestNode.getChildren().get(Digest.class);
+            assertThat(digestNode).isNotNull();
+            assertThat(digestNode.getChildren()).isEmpty();
+            assertThat(digestNode.asString()).isEqualTo("DIGEST");
+        } else if (findingId == 2) {
+            /*
+             * Detection Store
+             */
+            assertThat(detectionStore).isNotNull();
+            assertThat(detectionStore.getDetectionValues()).hasSize(1);
+            assertThat(detectionStore.getDetectionValueContext()).isInstanceOf(DigestContext.class);
+            IValue<Tree> value0 = detectionStore.getDetectionValues().get(0);
+            assertThat(value0).isInstanceOf(ValueAction.class);
+            assertThat(value0.asString()).isEqualTo("SHA3Digest");
+
+            /*
+             * Translation
+             */
+            assertThat(nodes).hasSize(1);
+
+            // MessageDigest
+            INode messageDigestNode = nodes.get(0);
+            assertThat(messageDigestNode.getKind()).isEqualTo(MessageDigest.class);
+            assertThat(messageDigestNode.getChildren()).hasSize(1);
+            assertThat(messageDigestNode.asString()).isEqualTo("SHA3");
+
+            // Digest under MessageDigest
+            INode digestNode = messageDigestNode.getChildren().get(Digest.class);
+            assertThat(digestNode).isNotNull();
+            assertThat(digestNode.getChildren()).isEmpty();
+            assertThat(digestNode.asString()).isEqualTo("DIGEST");
+        } else if (findingId == 3) {
+            /*
+             * Detection Store
+             */
+            assertThat(detectionStore).isNotNull();
+            assertThat(detectionStore.getDetectionValues()).hasSize(1);
+            assertThat(detectionStore.getDetectionValueContext()).isInstanceOf(CipherContext.class);
+            IValue<Tree> value0 = detectionStore.getDetectionValues().get(0);
+            assertThat(value0).isInstanceOf(ValueAction.class);
+            assertThat(value0.asString()).isEqualTo("BufferedAsymmetricBlockCipher");
+
+            DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> store1 =
+                    getStoreOfValueType(OperationMode.class, detectionStore.getChildren());
+            assertThat(store1).isNotNull();
+            assertThat(store1.getDetectionValues()).hasSize(1);
+            assertThat(store1.getDetectionValueContext()).isInstanceOf(CipherContext.class);
+            IValue<Tree> value01 = store1.getDetectionValues().get(0);
+            assertThat(value01).isInstanceOf(OperationMode.class);
+            assertThat(value01.asString()).isEqualTo("1");
+
+            List<DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext>> stores =
+                    getStoresOfValueType(ValueAction.class, detectionStore.getChildren());
+            assertThat(stores).isNotNull();
+            for (final DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> store :
+                    stores) {
+                assertThat(store.getDetectionValues()).hasSize(1);
+                IValue<Tree> value02 = store.getDetectionValues().get(0);
+                assertThat(value02).isInstanceOf(ValueAction.class);
+                assertThat(value02.asString())
+                        .satisfiesAnyOf(
+                                name -> assertThat(name).isEqualTo("OAEPEncoding"),
+                                name -> assertThat(name).isEqualTo("RSAEngine"),
+                                name -> assertThat(name).isEqualTo("SHA3Digest"));
+                if (value02.asString().equals("RSAEngine")) {
+                    assertThat(store.getDetectionValueContext()).isInstanceOf(CipherContext.class);
+                } else if (value02.asString().equals("OAEPEncoding")) {
+                    assertThat(store.getDetectionValueContext()).isInstanceOf(CipherContext.class);
+                } else {
+                    assertThat(store.getDetectionValueContext()).isInstanceOf(DigestContext.class);
+                }
+            }
+
+            /*
+             * Translation
+             */
+            assertThat(nodes).hasSize(1);
+
+            // PublicKeyEncryption
+            INode publicKeyEncryptionNode = nodes.get(0);
+            assertThat(publicKeyEncryptionNode.getKind()).isEqualTo(PublicKeyEncryption.class);
+            assertThat(publicKeyEncryptionNode.getChildren()).hasSize(4);
+            assertThat(publicKeyEncryptionNode.asString()).isEqualTo("RSA-OAEP");
+
+            // Oid under PublicKeyEncryption
+            INode oidNode = publicKeyEncryptionNode.getChildren().get(Oid.class);
+            assertThat(oidNode).isNotNull();
+            assertThat(oidNode.getChildren()).isEmpty();
+            assertThat(oidNode.asString()).isEqualTo("1.2.840.113549.1.1.7");
+
+            // Padding under PublicKeyEncryption
+            INode paddingNode = publicKeyEncryptionNode.getChildren().get(Padding.class);
+            assertThat(paddingNode).isNotNull();
+            assertThat(paddingNode.getChildren()).isEmpty();
+            assertThat(paddingNode.asString()).isEqualTo("OAEP");
+
+            // MessageDigest under PublicKeyEncryption
+            INode messageDigestNode =
+                    publicKeyEncryptionNode.getChildren().get(MessageDigest.class);
+            assertThat(messageDigestNode).isNotNull();
+            assertThat(messageDigestNode.getChildren()).hasSize(1);
+            assertThat(messageDigestNode.asString()).isEqualTo("SHA3");
+
+            // Digest under MessageDigest under PublicKeyEncryption
+            INode digestNode = messageDigestNode.getChildren().get(Digest.class);
+            assertThat(digestNode).isNotNull();
+            assertThat(digestNode.getChildren()).isEmpty();
+            assertThat(digestNode.asString()).isEqualTo("DIGEST");
+
+            // Encrypt under PublicKeyEncryption
+            INode encryptNode = publicKeyEncryptionNode.getChildren().get(Encrypt.class);
+            assertThat(encryptNode).isNotNull();
+            assertThat(encryptNode.getChildren()).isEmpty();
+            assertThat(encryptNode.asString()).isEqualTo("ENCRYPT");
         }
-
-        /*
-         * Detection Store
-         */
-
-        assertThat(detectionStore.getDetectionValues()).hasSize(1);
-        assertThat(detectionStore.getDetectionValueContext()).isInstanceOf(CipherContext.class);
-        IValue<Tree> value0 = detectionStore.getDetectionValues().get(0);
-        assertThat(value0).isInstanceOf(ValueAction.class);
-        assertThat(value0.asString()).isEqualTo("BufferedAsymmetricBlockCipher");
-
-        DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> store_1 =
-                getStoreOfValueType(OperationMode.class, detectionStore.getChildren());
-        assertThat(store_1.getDetectionValues()).hasSize(1);
-        assertThat(store_1.getDetectionValueContext()).isInstanceOf(CipherContext.class);
-        IValue<Tree> value0_1 = store_1.getDetectionValues().get(0);
-        assertThat(value0_1).isInstanceOf(OperationMode.class);
-        assertThat(value0_1.asString()).isEqualTo("1");
-
-        DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> store_2 =
-                getStoreOfValueType(ValueAction.class, detectionStore.getChildren());
-        assertThat(store_2.getDetectionValues()).hasSize(1);
-        assertThat(store_2.getDetectionValueContext()).isInstanceOf(CipherContext.class);
-        IValue<Tree> value0_2 = store_2.getDetectionValues().get(0);
-        assertThat(value0_2).isInstanceOf(ValueAction.class);
-        assertThat(value0_2.asString()).isEqualTo("OAEPEncoding");
-
-        List<DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext>> store_2_X =
-                getStoresOfValueType(ValueAction.class, store_2.getChildren());
-
-        DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> store_2_1 =
-                store_2_X.get(0);
-        assertThat(store_2_1.getDetectionValues()).hasSize(1);
-        assertThat(store_2_1.getDetectionValueContext()).isInstanceOf(CipherContext.class);
-        IValue<Tree> value0_2_1 = store_2_1.getDetectionValues().get(0);
-        assertThat(value0_2_1).isInstanceOf(ValueAction.class);
-        assertThat(value0_2_1.asString()).isEqualTo("RSAEngine");
-
-        DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> store_2_2 =
-                store_2_X.get(1);
-        assertThat(store_2_2.getDetectionValues()).hasSize(1);
-        assertThat(store_2_2.getDetectionValueContext()).isInstanceOf(DigestContext.class);
-        IValue<Tree> value0_2_2 = store_2_2.getDetectionValues().get(0);
-        assertThat(value0_2_2).isInstanceOf(ValueAction.class);
-        assertThat(value0_2_2.asString()).isEqualTo("SHA3Digest");
-
-        /*
-         * Translation
-         */
-
-        assertThat(nodes).hasSize(1);
-
-        // PublicKeyEncryption
-        INode pkeNode = nodes.get(0);
-        assertThat(pkeNode.getKind()).isEqualTo(PublicKeyEncryption.class);
-        assertThat(pkeNode.getChildren()).hasSize(4);
-        assertThat(pkeNode.asString()).isEqualTo("RSA-OAEP");
-
-        // Encrypt under PublicKeyEncryption
-        INode encryptNode = pkeNode.getChildren().get(Encrypt.class);
-        assertThat(encryptNode).isNotNull();
-        assertThat(encryptNode.getChildren()).isEmpty();
-        assertThat(encryptNode.asString()).isEqualTo("ENCRYPT");
-
-        // Encrypt under PublicKeyEncryption
-        INode digestNode = pkeNode.getChildren().get(MessageDigest.class);
-        assertThat(digestNode).isNotNull();
-        assertThat(digestNode.getChildren()).hasSize(1);
-        assertThat(digestNode.asString()).isEqualTo("SHA3");
-
-        // OptimalAsymmetricEncryptionPadding under PublicKeyEncryption
-        INode optimalAsymmetricEncryptionPaddingNode = pkeNode.getChildren().get(Padding.class);
-        assertThat(optimalAsymmetricEncryptionPaddingNode).isNotNull();
-        assertThat(optimalAsymmetricEncryptionPaddingNode.getChildren()).isEmpty();
-        assertThat(optimalAsymmetricEncryptionPaddingNode.asString()).isEqualTo("OAEP");
     }
 }

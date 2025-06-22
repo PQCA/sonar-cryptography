@@ -24,10 +24,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.ibm.engine.detection.DetectionStore;
 import com.ibm.engine.model.IValue;
 import com.ibm.engine.model.ValueAction;
+import com.ibm.engine.model.context.DigestContext;
 import com.ibm.engine.model.context.MacContext;
 import com.ibm.mapper.model.DigestSize;
 import com.ibm.mapper.model.INode;
 import com.ibm.mapper.model.Mac;
+import com.ibm.mapper.model.MessageDigest;
+import com.ibm.mapper.model.functionality.Digest;
 import com.ibm.mapper.model.functionality.Tag;
 import com.ibm.plugin.TestBase;
 import com.ibm.plugin.rules.detection.bc.BouncyCastleJars;
@@ -55,38 +58,70 @@ class BcBlake3MacTest extends TestBase {
             int findingId,
             @Nonnull DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> detectionStore,
             @Nonnull List<INode> nodes) {
-        /*
-         * Detection Store
-         */
+        if (findingId == 0) {
+            /*
+             * Detection Store
+             */
+            assertThat(detectionStore.getDetectionValues()).hasSize(1);
+            assertThat(detectionStore.getDetectionValueContext()).isInstanceOf(DigestContext.class);
+            IValue<Tree> value0 = detectionStore.getDetectionValues().get(0);
+            assertThat(value0).isInstanceOf(ValueAction.class);
+            assertThat(value0.asString()).isEqualTo("Blake3Digest");
 
-        assertThat(detectionStore.getDetectionValues()).hasSize(1);
-        assertThat(detectionStore.getDetectionValueContext()).isInstanceOf(MacContext.class);
-        IValue<Tree> value0 = detectionStore.getDetectionValues().get(0);
-        assertThat(value0).isInstanceOf(ValueAction.class);
-        assertThat(value0.asString()).isEqualTo("Blake3Mac");
+            /*
+             * Translation
+             */
+            assertThat(nodes).hasSize(1);
 
-        /*
-         * Translation
-         */
+            // MessageDigest
+            INode messageDigestNode = nodes.get(0);
+            assertThat(messageDigestNode.getKind()).isEqualTo(MessageDigest.class);
+            assertThat(messageDigestNode.getChildren()).hasSize(2);
+            assertThat(messageDigestNode.asString()).isEqualTo("BLAKE3");
 
-        assertThat(nodes).hasSize(1);
+            // Digest under MessageDigest
+            INode digestNode = messageDigestNode.getChildren().get(Digest.class);
+            assertThat(digestNode).isNotNull();
+            assertThat(digestNode.getChildren()).isEmpty();
+            assertThat(digestNode.asString()).isEqualTo("DIGEST");
 
-        // Mac
-        INode macNode = nodes.get(0);
-        assertThat(macNode.getKind()).isEqualTo(Mac.class);
-        assertThat(macNode.getChildren()).hasSize(2);
-        assertThat(macNode.asString()).isEqualTo("BLAKE3");
+            // DigestSize under MessageDigest
+            INode digestSizeNode = messageDigestNode.getChildren().get(DigestSize.class);
+            assertThat(digestSizeNode).isNotNull();
+            assertThat(digestSizeNode.getChildren()).isEmpty();
+            assertThat(digestSizeNode.asString()).isEqualTo("256");
+        } else if (findingId == 1) {
+            /*
+             * Detection Store
+             */
+            assertThat(detectionStore.getDetectionValues()).hasSize(1);
+            assertThat(detectionStore.getDetectionValueContext()).isInstanceOf(MacContext.class);
+            IValue<Tree> value0 = detectionStore.getDetectionValues().get(0);
+            assertThat(value0).isInstanceOf(ValueAction.class);
+            assertThat(value0.asString()).isEqualTo("Blake3Mac");
 
-        // DigestSize under Mac
-        INode digestSizeNode = macNode.getChildren().get(DigestSize.class);
-        assertThat(digestSizeNode).isNotNull();
-        assertThat(digestSizeNode.getChildren()).isEmpty();
-        assertThat(digestSizeNode.asString()).isEqualTo("256");
+            /*
+             * Translation
+             */
+            assertThat(nodes).hasSize(1);
 
-        // Tag under Mac
-        INode tagNode = macNode.getChildren().get(Tag.class);
-        assertThat(tagNode).isNotNull();
-        assertThat(tagNode.getChildren()).isEmpty();
-        assertThat(tagNode.asString()).isEqualTo("TAG");
+            // Mac
+            INode macNode = nodes.get(0);
+            assertThat(macNode.getKind()).isEqualTo(Mac.class);
+            assertThat(macNode.getChildren()).hasSize(2);
+            assertThat(macNode.asString()).isEqualTo("BLAKE3");
+
+            // Tag under Mac
+            INode tagNode = macNode.getChildren().get(Tag.class);
+            assertThat(tagNode).isNotNull();
+            assertThat(tagNode.getChildren()).isEmpty();
+            assertThat(tagNode.asString()).isEqualTo("TAG");
+
+            // DigestSize under Mac
+            INode digestSizeNode = macNode.getChildren().get(DigestSize.class);
+            assertThat(digestSizeNode).isNotNull();
+            assertThat(digestSizeNode.getChildren()).isEmpty();
+            assertThat(digestSizeNode.asString()).isEqualTo("256");
+        }
     }
 }
