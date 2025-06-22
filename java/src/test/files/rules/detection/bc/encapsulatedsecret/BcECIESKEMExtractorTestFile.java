@@ -11,7 +11,7 @@ public class BcECIESKEMExtractorTestFile {
     public static void test() {
         // Initialize the parameters
         int keyLen = 2048; // Key length in bits
-        Digest digest = new SHA256Digest(); // Digest
+        Digest digest = new SHA256Digest(); // Noncompliant {{(MessageDigest) SHA256}}
         DerivationFunction kdf =
                 new HKDFBytesGenerator(digest); // Your DerivationFunction implementation
         // Noncompliant@-1 {{(KeyDerivationFunction) HKDF-SHA256}}
