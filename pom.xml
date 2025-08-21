@@ -49,7 +49,7 @@
         <sonar.java.version>8.18.0.40025</sonar.java.version>
         <sonar.python.version>5.8.0.24785</sonar.python.version>
 
-        <google-java-format.version>1.27.0</google-java-format.version>
+        <google-java-format.version>1.28.0</google-java-format.version>
     </properties>
 
     <distributionManagement>
