@@ -273,6 +273,24 @@ public final class PythonSemantic {
     }
 
     /**
+     * Helper function for extracing the value from NumericLiterals. NumericLiterals can have int,
+     * float or string values. The python scanner only cares about ints as indexes of lists. All
+     * other numerics will be handled as strings.
+     *
+     * @param indexLiteralTree parsed NumericLiteral
+     * @return Integer object for int values, String otherwise
+     */
+    private static Object getNumericValue(NumericLiteral indexLiteralTree) {
+        String value = indexLiteralTree.valueAsString();
+        try {
+            return Integer.valueOf(value);
+        } catch (NumberFormatException e) {
+            // fall thru
+        }
+        return value;
+    }
+
+    /**
      * For a given {@code tree}, this function resolve its associated values by following the chain
      * of function calls and assignments. As its result includes the associated Trees, this function
      * can also be used for type resolution of the given {@code tree}. Various parameters described
@@ -730,7 +748,7 @@ public final class PythonSemantic {
 
                     if (resolvedSubscriptionIndex instanceof NumericLiteral indexLiteralTree) {
                         // Case of lists: `list[1]`
-                        Integer index = (int) (indexLiteralTree.valueAsLong());
+                        Object index = getNumericValue(indexLiteralTree);
                         result.addAll(
                                 resolveValues(
                                         clazz,
