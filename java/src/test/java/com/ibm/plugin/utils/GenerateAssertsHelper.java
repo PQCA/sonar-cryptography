@@ -33,6 +33,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.plugins.java.api.JavaCheck;
@@ -43,18 +44,18 @@ import org.sonar.plugins.java.api.tree.Tree;
 public class GenerateAssertsHelper {
     private static final Logger LOGGER = LoggerFactory.getLogger(GenerateAssertsHelper.class);
 
-    private static final String filePath = "target/generated-asserts/";
-    private static final String fileName = "asserts.txt";
+    private static final String FILE_PATH = "target/generated-asserts/";
+    private static final String FILE_NAME = "asserts.txt";
 
-    private static final String initialDetectionStoreVariableName = "detectionStore";
-    private static final String initialTranslationNodesVariableName = "nodes";
+    private static final String INITIAL_DETECTION_STORE_VARIABLE_NAME = "detectionStore";
+    private static final String INITIAL_TRANSLATION_NODES_VARIABLE_NAME = "nodes";
 
     /**
      * Call this function inside the {@code asserts} function of a test. It will assume that the
      * input trees correspond to the ground truth of the detection store and translation. Therefore,
      * it will generate the code of all the assertions to verify that they match this ground truth.
-     * The code of the assertions is added to your clipboard so you can easily paste them in your
-     * test file (they are also stored in a temporary file in {@code target}).
+     * The code of the assertions is added to your clipboard so you can paste them in your test file
+     * (they are also stored in a temporary file in {@code target}).
      *
      * @param detectionStore - The root node of the tree of detection stores
      * @param translationRoots - The list of root nodes of translation trees
@@ -62,40 +63,38 @@ public class GenerateAssertsHelper {
     public static void generate(
             @Nonnull DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> detectionStore,
             @Nonnull List<INode> translationRoots) {
-        // Create a directories if they do not yet exist
+        // Create a directory if they do not yet exist
         try {
-            Files.createDirectories(Paths.get(filePath));
+            Files.createDirectories(Paths.get(FILE_PATH));
         } catch (IOException e) {
             e.printStackTrace();
             return;
         }
 
-        // Write the asserts
-        try (FileWriter writer = new FileWriter(filePath + fileName)) {
+        // Write the asserting
+        try (FileWriter writer = new FileWriter(FILE_PATH + FILE_NAME)) {
             writer.write(
                     """
                     /*
                     * Detection Store
                     */
-
                     """);
             generateDetectionStoreAssertions(
-                    writer, detectionStore, initialDetectionStoreVariableName);
+                    writer, detectionStore, INITIAL_DETECTION_STORE_VARIABLE_NAME);
 
             writer.write(
                     """
-
                     /*
                     * Translation
                     */
-
                     """);
-            generateNodeAssertions(writer, translationRoots, initialTranslationNodesVariableName);
+            generateNodeAssertions(
+                    writer, translationRoots, INITIAL_TRANSLATION_NODES_VARIABLE_NAME);
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        // Copy the resulting content to clipboard
+        // Copy the resulting content to the clipboard
         try {
             copyFileToClipboard();
             LOGGER.debug("File content copied to clipboard successfully!");
@@ -105,10 +104,11 @@ public class GenerateAssertsHelper {
     }
 
     private static void generateDetectionStoreAssertions(
-            FileWriter writer,
-            DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> detectionStore,
-            String detectionStoreVarName)
+            @Nonnull FileWriter writer,
+            @Nonnull DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> detectionStore,
+            @Nonnull String detectionStoreVarName)
             throws IOException {
+        writer.write(String.format("assertThat(%s).isNotNull();%n", detectionStoreVarName));
         writer.write(
                 String.format(
                         "assertThat(%s.getDetectionValues()).hasSize(%d);%n",
@@ -125,7 +125,7 @@ public class GenerateAssertsHelper {
             String valueNameStart = String.format("value%d", i);
             String valueVarName;
 
-            if (detectionStoreVarName.equals(initialDetectionStoreVariableName)) {
+            if (detectionStoreVarName.equals(INITIAL_DETECTION_STORE_VARIABLE_NAME)) {
                 valueVarName = valueNameStart;
             } else {
                 valueVarName = detectionStoreVarName.replace("store", valueNameStart);
@@ -157,10 +157,10 @@ public class GenerateAssertsHelper {
                 nonEmptyChildrenStores) {
 
             String childrenStoreVarName;
-            if (detectionStoreVarName.equals(initialDetectionStoreVariableName)) {
-                childrenStoreVarName = String.format("%s_%d", "store", index);
+            if (detectionStoreVarName.equals(INITIAL_DETECTION_STORE_VARIABLE_NAME)) {
+                childrenStoreVarName = String.format("%s%d", "store", index);
             } else {
-                childrenStoreVarName = String.format("%s_%d", detectionStoreVarName, index);
+                childrenStoreVarName = String.format("%s%d", detectionStoreVarName, index);
             }
 
             if (store.getDetectionValues().isEmpty()) {
@@ -180,7 +180,8 @@ public class GenerateAssertsHelper {
     }
 
     private static void generateNodeAssertions(
-            FileWriter writer, List<INode> nodes, String nodeVarName) throws IOException {
+            @Nonnull FileWriter writer, @Nonnull List<INode> nodes, @Nonnull String nodeVarName)
+            throws IOException {
         writer.write(String.format("assertThat(%s).hasSize(%d);%n%n", nodeVarName, nodes.size()));
 
         for (int i = 0; i < nodes.size(); i++) {
@@ -192,11 +193,11 @@ public class GenerateAssertsHelper {
     private static final Map<String, Integer> usedKindNames = new HashMap<>();
 
     private static void generateNodeAssertionsRecursive(
-            FileWriter writer,
-            INode node,
-            String previousNodeVarName,
+            @Nonnull FileWriter writer,
+            @Nonnull INode node,
+            @Nonnull String previousNodeVarName,
             int index,
-            String previousTitle)
+            @Nullable String previousTitle)
             throws IOException {
 
         String kindName = node.getKind().getSimpleName();
@@ -214,16 +215,13 @@ public class GenerateAssertsHelper {
         if (kindName.equals("Algorithm")) {
             // Remove the confusion between the engine's and the mapper's Algorithm
             kindName = node.getKind().getName();
-        } /* else if (kindName.equals("Oid")) {
-              // Don't put Oids in assert statements
-              return;
-          } */
+        }
 
         String title;
         if (index >= 0) {
             // Case of top level translation nodes
             title = kindName;
-            writer.write(String.format("// %s%n", title));
+            writer.write(String.format("\t// %s%n", title));
             writer.write(
                     String.format(
                             "INode %s = %s.get(%d);%n", nodeVarName, previousNodeVarName, index));
@@ -234,7 +232,7 @@ public class GenerateAssertsHelper {
         } else {
             // Case of children nodes
             title = String.format("%s under %s", kindName, previousTitle);
-            writer.write(String.format("// %s%n", title));
+            writer.write(String.format("\t// %s%n", title));
             writer.write(
                     String.format(
                             "INode %s = %s.getChildren().get(%s.class);%n",
@@ -264,8 +262,7 @@ public class GenerateAssertsHelper {
 
     private static void copyFileToClipboard() throws IOException {
         // Read the file content
-        String fileContent = Files.readString(Paths.get(filePath, fileName));
-
+        String fileContent = Files.readString(Paths.get(FILE_PATH, FILE_NAME));
         // Copy the content to the system clipboard
         StringSelection stringSelection = new StringSelection(fileContent);
         Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();

@@ -41,7 +41,7 @@ public final class BcDigests {
         // nothing
     }
 
-    private static BouncyCastleInfoMap infoMap = new BouncyCastleInfoMap();
+    private static final BouncyCastleInfoMap infoMap = new BouncyCastleInfoMap();
 
     static {
         /* Digests with non-standard type */
@@ -105,10 +105,11 @@ public final class BcDigests {
         infoMap.putKey("XoodyakDigest");
     }
 
-    private static final List<IDetectionRule<Tree>> regularConstructors(
+    @Nonnull
+    private static List<IDetectionRule<Tree>> regularConstructors(
             @Nullable IDetectionContext detectionValueContext) {
-        List<IDetectionRule<Tree>> constructorsList = new LinkedList<>();
-        IDetectionContext context =
+        final List<IDetectionRule<Tree>> constructorsList = new LinkedList<>();
+        final IDetectionContext context =
                 detectionValueContext != null ? detectionValueContext : new DigestContext();
 
         for (Map.Entry<String, BouncyCastleInfoMap.Info> entry : infoMap.entrySet()) {
@@ -129,11 +130,11 @@ public final class BcDigests {
                             .inBundle(() -> "Bc")
                             .withoutDependingDetectionRules());
         }
-
         return constructorsList;
     }
 
-    private static final List<IDetectionRule<Tree>> otherConstructors(
+    @Nonnull
+    private static List<IDetectionRule<Tree>> otherConstructors(
             @Nullable IDetectionContext detectionValueContext) {
         List<IDetectionRule<Tree>> constructorsList = new LinkedList<>();
         IDetectionContext context =
