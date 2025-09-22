@@ -28,7 +28,7 @@ import javax.annotation.Nonnull;
 import org.sonar.check.Rule;
 import org.sonar.plugins.go.api.Tree;
 
-@Rule(key = "JavaNoMD5use")
+@Rule(key = "GoNoMD5use")
 public class GoNoMD5UseRule extends GoBaseDetectionRule {
 
     @Override
