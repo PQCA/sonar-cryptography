@@ -31,11 +31,13 @@ import com.ibm.plugin.rules.detection.bc.aeadcipher.BcKGCMBlockCipher;
 import com.ibm.plugin.rules.detection.bc.aeadcipher.BcOCBBlockCipher;
 import com.ibm.plugin.rules.detection.bc.asymmetricblockcipher.BcAsymmetricBlockCipher;
 import com.ibm.plugin.rules.detection.bc.asymmetricblockcipher.BcBufferedAsymmetricBlockCipher;
+import com.ibm.plugin.rules.detection.bc.asymmetrickeypair.BcAsymmetricCipherKeyPairGenerators;
 import com.ibm.plugin.rules.detection.bc.basicagreement.BcBasicAgreement;
 import com.ibm.plugin.rules.detection.bc.blockcipher.BcBlockCipher;
 import com.ibm.plugin.rules.detection.bc.blockcipher.BcBlockCipherEngine;
 import com.ibm.plugin.rules.detection.bc.bufferedblockcipher.BcBufferedBlockCipher;
 import com.ibm.plugin.rules.detection.bc.derivationfunction.BcDerivationFunction;
+import com.ibm.plugin.rules.detection.bc.digest.BcDigests;
 import com.ibm.plugin.rules.detection.bc.dsa.BcDSA;
 import com.ibm.plugin.rules.detection.bc.encapsulatedsecret.BcEncapsulatedSecretExtractor;
 import com.ibm.plugin.rules.detection.bc.encapsulatedsecret.BcEncapsulatedSecretGenerator;
@@ -79,6 +81,8 @@ public final class BouncyCastleDetectionRules {
                         BcBufferedBlockCipher.rules().stream(),
                         // StreamCipher
                         BcStreamCipherEngine.rules().stream(),
+                        // Digest
+                        BcDigests.rules().stream(),
                         // Mac
                         BcMac.rules().stream(),
                         // PBE
@@ -96,6 +100,8 @@ public final class BouncyCastleDetectionRules {
                         BcDSA.rules().stream(),
                         // Signer
                         BcSigner.rules().stream(),
+                        // Asymmetric Key Pair Generators
+                        BcAsymmetricCipherKeyPairGenerators.rules().stream(),
                         // Other
                         BcIESEngine.rules().stream(),
                         BcSM2Engine.rules().stream())
