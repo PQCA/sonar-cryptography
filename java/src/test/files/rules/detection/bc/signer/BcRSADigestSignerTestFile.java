@@ -10,7 +10,7 @@ public class BcRSADigestSignerTestFile {
     public static void test() {
 
         // Initialize the Digest
-        Digest digest = new SHA256Digest(); // Initialize your digest, e.g., new SHA256Digest()
+        Digest digest = new SHA256Digest(); // Noncompliant {{(MessageDigest) SHA256}}
 
         // Initialize RSADigestSigner
         RSADigestSigner signer = new RSADigestSigner(digest, new ASN1ObjectIdentifier("1234"));
