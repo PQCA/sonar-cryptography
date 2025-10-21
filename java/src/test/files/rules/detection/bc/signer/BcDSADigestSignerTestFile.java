@@ -11,7 +11,7 @@ public class BcDSADigestSignerTestFile {
     public static void test() {
 
         // Initialize the Digest
-        Digest digest = new SHA256Digest(); // Initialize your digest, e.g., new SHA256Digest()
+        Digest digest = new SHA256Digest(); // Noncompliant {{(MessageDigest) SHA256}}
 
         // Initialize DSASginer
         DSASigner dsa = new DSASigner(); // Noncompliant {{(Signature) DSA}}
