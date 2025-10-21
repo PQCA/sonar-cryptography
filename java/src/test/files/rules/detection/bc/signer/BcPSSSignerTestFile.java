@@ -14,9 +14,9 @@ public class BcPSSSignerTestFile {
 
         // Initialize the necessary parameters
         Digest contentDigest =
-                new SHA256Digest(); // Initialize with your chosen digest for the content
+                new SHA256Digest(); // Noncompliant {{(MessageDigest) SHA256}}
         Digest mgfDigest =
-                new SHA512Digest(); // Initialize with your chosen digest for the MGF function
+                new SHA512Digest(); // Noncompliant {{(MessageDigest) SHA512}}
         byte[] salt = new byte[20]; // Salt for the PSS padding
         byte trailer = 0x01; // Trailer field value
 
