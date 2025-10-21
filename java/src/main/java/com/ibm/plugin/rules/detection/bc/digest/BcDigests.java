@@ -27,13 +27,14 @@ import com.ibm.engine.model.factory.ValueActionFactory;
 import com.ibm.engine.rule.IDetectionRule;
 import com.ibm.engine.rule.builder.DetectionRuleBuilder;
 import com.ibm.plugin.rules.detection.bc.BouncyCastleInfoMap;
+import org.sonar.plugins.java.api.tree.Tree;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import org.sonar.plugins.java.api.tree.Tree;
 
 public final class BcDigests {
 
@@ -95,7 +96,6 @@ public final class BcDigests {
         infoMap.putKey("SHA3Digest");
         infoMap.putKey("SHA512Digest");
         infoMap.putKey("SHA512tDigest");
-        infoMap.putKey("SHAKEDigest");
         infoMap.putKey("SkeinDigest");
         infoMap.putKey("SM3Digest");
         infoMap.putKey("SparkleDigest");
@@ -160,6 +160,31 @@ public final class BcDigests {
                         .addDependingDetectionRules(regularConstructors(detectionValueContext))
                         .withMethodParameter("int")
                         .shouldBeDetectedAs(new DigestSizeFactory<>(Size.UnitType.BYTE))
+                        .buildForContext(context)
+                        .inBundle(() -> "Bc")
+                        .withoutDependingDetectionRules());
+
+        // add custom constructors for SHAKE to get the digest size
+        constructorsList.add(
+                new DetectionRuleBuilder<Tree>()
+                        .createDetectionRule()
+                        .forObjectExactTypes("org.bouncycastle.crypto.digests.SHAKEDigest")
+                        .forConstructor()
+                        .shouldBeDetectedAs(new ValueActionFactory<>("SHAKEDigest"))
+                        .withoutParameters()
+                        .buildForContext(context)
+                        .inBundle(() -> "Bc")
+                        .withoutDependingDetectionRules());
+
+        constructorsList.add(
+                new DetectionRuleBuilder<Tree>()
+                        .createDetectionRule()
+                        .forObjectExactTypes("org.bouncycastle.crypto.digests.SHAKEDigest")
+                        .forConstructor()
+                        .shouldBeDetectedAs(new ValueActionFactory<>("SHAKEDigest"))
+                        .withMethodParameter("int")
+                        .shouldBeDetectedAs(new DigestSizeFactory<>(Size.UnitType.BIT))
+                        .asChildOfParameterWithId(-1)
                         .buildForContext(context)
                         .inBundle(() -> "Bc")
                         .withoutDependingDetectionRules());

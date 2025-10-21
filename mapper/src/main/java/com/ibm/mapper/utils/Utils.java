@@ -26,13 +26,14 @@ import com.ibm.mapper.model.IPrimitive;
 import com.ibm.mapper.model.Mode;
 import com.ibm.mapper.model.Padding;
 import com.ibm.mapper.model.collections.IAssetCollection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public final class Utils {
     private static final Logger LOGGER = LoggerFactory.getLogger(Utils.class);
@@ -56,13 +57,17 @@ public final class Utils {
                             tabs > 0 ? "└─ " : "",
                             node.getKind().getSimpleName(),
                             node.asString());
-                    if (node.hasChildren()) {
-                        printNodes(step, tabs + 1, node.getChildren().values());
-                    }
-
                     if (node instanceof IAssetCollection<?>) {
                         IAssetCollection<INode> collection = (IAssetCollection<INode>) node;
                         printNodes(step, tabs + 1, collection.getCollection());
+                        if (node.hasChildren()) {
+                            printNodes(step, tabs + 2, node.getChildren().values());
+                        }
+                        return;
+                    }
+
+                    if (node.hasChildren()) {
+                        printNodes(step, tabs + 1, node.getChildren().values());
                     }
                 });
     }

@@ -11,15 +11,16 @@ public class BcDigestingMessageSignerTestFile {
     public static void test() {
 
         // Initialize the Digest
-        Digest digest = new SHA256Digest(); // Initialize your digest, e.g., new SHA256Digest()
+        Digest digest = new SHA256Digest(); // Noncompliant {{(MessageDigest) SHA256}}
 
         // Create SPHINCS signer with SHAKEDigest
         SPHINCS256Signer sphincsSigner =
                 new SPHINCS256Signer(new SHAKEDigest(128), new SHAKEDigest(256));
+        // Noncompliant@-1 {{(ExtendableOutputFunction) SHAKE}} {{(ExtendableOutputFunction) SHAKE}}
 
         // Initialize DigestingMessageSigner with SPHINCS signer and SHAKEDigest
         DigestingMessageSigner signer = new DigestingMessageSigner(sphincsSigner, digest);
-         // Noncompliant@-1 {{(Signature) SPHINCS-256}}
+        // Noncompliant@-1 {{(Signature) SPHINCS-256}}
 
         signer.init(true, new RSAKeyParameters(true, new BigInteger("0"), new BigInteger("1")));
 
