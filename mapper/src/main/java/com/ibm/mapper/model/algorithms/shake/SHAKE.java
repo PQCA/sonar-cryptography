@@ -20,13 +20,15 @@
 package com.ibm.mapper.model.algorithms.shake;
 
 import com.ibm.mapper.model.Algorithm;
+import com.ibm.mapper.model.DigestSize;
 import com.ibm.mapper.model.ExtendableOutputFunction;
 import com.ibm.mapper.model.INode;
 import com.ibm.mapper.model.IPrimitive;
 import com.ibm.mapper.model.ParameterSetIdentifier;
 import com.ibm.mapper.utils.DetectionLocation;
-import java.util.Optional;
+
 import javax.annotation.Nonnull;
+import java.util.Optional;
 
 /**
  *
@@ -58,9 +60,12 @@ public final class SHAKE extends Algorithm implements ExtendableOutputFunction {
     @Nonnull
     public String asString() {
         final StringBuilder builtName = new StringBuilder(this.name);
-        final Optional<INode> parameterSetIdentifier =
-                this.hasChildOfType(ParameterSetIdentifier.class);
+        // check for parameter set identifier
+        final Optional<INode> parameterSetIdentifier = this.hasChildOfType(ParameterSetIdentifier.class);
         parameterSetIdentifier.ifPresent(node -> builtName.append(node.asString()));
+        // check for digest size
+        final Optional<INode> digestSize = this.hasChildOfType(DigestSize.class);
+        digestSize.ifPresent(node -> builtName.append(node.asString()));
         return builtName.toString();
     }
 

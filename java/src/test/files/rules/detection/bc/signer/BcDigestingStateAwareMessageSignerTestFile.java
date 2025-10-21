@@ -11,10 +11,10 @@ public class BcDigestingStateAwareMessageSignerTestFile {
     public static void test() {
 
         // Initialize the Digest
-        Digest digest = new SHA256Digest(); // Initialize your digest, e.g., new SHA256Digest()
+        Digest digest = new SHA256Digest(); // Noncompliant {{(MessageDigest) SHA256}}
 
         // Create SPHINCS signer with SHAKEDigest
-        GMSSStateAwareSigner gmssSigner = new GMSSStateAwareSigner(new SHAKEDigest(256));
+        GMSSStateAwareSigner gmssSigner = new GMSSStateAwareSigner(new SHAKEDigest(256)); // Noncompliant {{(ExtendableOutputFunction) SHAKE256}}
 
         // Initialize DigestingStateAwareMessageSigner with SPHINCS signer and SHAKEDigest
         DigestingStateAwareMessageSigner signer = new DigestingStateAwareMessageSigner(gmssSigner, digest);
