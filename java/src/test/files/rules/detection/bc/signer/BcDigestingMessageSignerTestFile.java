@@ -16,7 +16,7 @@ public class BcDigestingMessageSignerTestFile {
         // Create SPHINCS signer with SHAKEDigest
         SPHINCS256Signer sphincsSigner =
                 new SPHINCS256Signer(new SHAKEDigest(128), new SHAKEDigest(256));
-        // Noncompliant@-1 {{(ExtendableOutputFunction) SHAKE}} {{(ExtendableOutputFunction) SHAKE}}
+        // Noncompliant@-1 {{(ExtendableOutputFunction) SHAKE128}} {{(ExtendableOutputFunction) SHAKE256}}
 
         // Initialize DigestingMessageSigner with SPHINCS signer and SHAKEDigest
         DigestingMessageSigner signer = new DigestingMessageSigner(sphincsSigner, digest);

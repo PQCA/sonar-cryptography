@@ -139,7 +139,7 @@ class BcDigestingMessageSignerTest extends TestBase {
             INode extendableOutputFunctionNode = nodes.get(0);
             assertThat(extendableOutputFunctionNode.getKind()).isEqualTo(ExtendableOutputFunction.class);
             assertThat(extendableOutputFunctionNode.getChildren()).hasSize(2);
-            assertThat(extendableOutputFunctionNode.asString()).isEqualTo("SHAKE");
+            assertThat(extendableOutputFunctionNode.asString()).isEqualTo("SHAKE128");
 
             // Digest under ExtendableOutputFunction
             INode digestNode = extendableOutputFunctionNode.getChildren().get(Digest.class);
@@ -180,7 +180,7 @@ class BcDigestingMessageSignerTest extends TestBase {
             INode extendableOutputFunctionNode = nodes.get(0);
             assertThat(extendableOutputFunctionNode.getKind()).isEqualTo(ExtendableOutputFunction.class);
             assertThat(extendableOutputFunctionNode.getChildren()).hasSize(2);
-            assertThat(extendableOutputFunctionNode.asString()).isEqualTo("SHAKE");
+            assertThat(extendableOutputFunctionNode.asString()).isEqualTo("SHAKE256");
 
             // Digest under ExtendableOutputFunction
             INode digestNode = extendableOutputFunctionNode.getChildren().get(Digest.class);
