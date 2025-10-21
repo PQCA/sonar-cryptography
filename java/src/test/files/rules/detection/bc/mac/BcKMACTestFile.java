@@ -26,7 +26,7 @@ public class BcKMACTestFile {
         byte[] key = "secretkey".getBytes();
         byte[] data = "hello".getBytes();
 
-        KMAC kmac = new KMAC(256, key); // Noncompliant {{(Mac) KMAC256}}
+        KMAC kmac = new KMAC(256, key); // Noncompliant {{(Mac) KMAC256}} {{(MessageDigest) KMAC}}
 
         kmac.update(data, 0, data.length);
         byte[] output = new byte[32]; // 256 bits = 32 bytes
