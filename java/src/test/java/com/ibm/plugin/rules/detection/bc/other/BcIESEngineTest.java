@@ -19,6 +19,8 @@
  */
 package com.ibm.plugin.rules.detection.bc.other;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.ibm.engine.detection.DetectionStore;
 import com.ibm.engine.model.IValue;
 import com.ibm.engine.model.ValueAction;
@@ -40,17 +42,14 @@ import com.ibm.mapper.model.functionality.Digest;
 import com.ibm.mapper.model.functionality.Tag;
 import com.ibm.plugin.TestBase;
 import com.ibm.plugin.rules.detection.bc.BouncyCastleJars;
+import java.util.List;
+import javax.annotation.Nonnull;
 import org.junit.jupiter.api.Test;
 import org.sonar.java.checks.verifier.CheckVerifier;
 import org.sonar.plugins.java.api.JavaCheck;
 import org.sonar.plugins.java.api.JavaFileScannerContext;
 import org.sonar.plugins.java.api.semantic.Symbol;
 import org.sonar.plugins.java.api.tree.Tree;
-
-import javax.annotation.Nonnull;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 class BcIESEngineTest extends TestBase {
     @Test
@@ -105,7 +104,8 @@ class BcIESEngineTest extends TestBase {
             assertThat(value0).isInstanceOf(ValueAction.class);
             assertThat(value0.asString()).isEqualTo("KDF1BytesGenerator");
 
-            DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> store1 = getStoreOfValueType(ValueAction.class, detectionStore.getChildren());
+            DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> store1 =
+                    getStoreOfValueType(ValueAction.class, detectionStore.getChildren());
             assertThat(store1).isNotNull();
             assertThat(store1.getDetectionValues()).hasSize(1);
             assertThat(store1.getDetectionValueContext()).isInstanceOf(DigestContext.class);
@@ -125,7 +125,8 @@ class BcIESEngineTest extends TestBase {
             assertThat(keyDerivationFunctionNode.asString()).isEqualTo("KDF1");
 
             // MessageDigest under KeyDerivationFunction
-            INode messageDigestNode = keyDerivationFunctionNode.getChildren().get(MessageDigest.class);
+            INode messageDigestNode =
+                    keyDerivationFunctionNode.getChildren().get(MessageDigest.class);
             assertThat(messageDigestNode).isNotNull();
             assertThat(messageDigestNode.getChildren()).hasSize(4);
             assertThat(messageDigestNode.asString()).isEqualTo("SHA256");
@@ -209,7 +210,8 @@ class BcIESEngineTest extends TestBase {
             assertThat(value0).isInstanceOf(ValueAction.class);
             assertThat(value0.asString()).isEqualTo("HMac");
 
-            DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> store1 = getStoreOfValueType(ValueAction.class, detectionStore.getChildren());
+            DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> store1 =
+                    getStoreOfValueType(ValueAction.class, detectionStore.getChildren());
             assertThat(store1).isNotNull();
             assertThat(store1.getDetectionValues()).hasSize(1);
             assertThat(store1.getDetectionValueContext()).isInstanceOf(DigestContext.class);
@@ -325,7 +327,8 @@ class BcIESEngineTest extends TestBase {
             assertThat(value0).isInstanceOf(ValueAction.class);
             assertThat(value0.asString()).isEqualTo("IESEngine");
 
-            List<DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext>> stores = getStoresOfValueType(ValueAction.class, detectionStore.getChildren());
+            List<DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext>> stores =
+                    getStoresOfValueType(ValueAction.class, detectionStore.getChildren());
             assertThat(stores).hasSize(5);
 
             /*
@@ -340,13 +343,15 @@ class BcIESEngineTest extends TestBase {
             assertThat(publicKeyEncryptionNode.asString()).isEqualTo("IES");
 
             // KeyDerivationFunction under PublicKeyEncryption
-            INode keyDerivationFunctionNode = publicKeyEncryptionNode.getChildren().get(KeyDerivationFunction.class);
+            INode keyDerivationFunctionNode =
+                    publicKeyEncryptionNode.getChildren().get(KeyDerivationFunction.class);
             assertThat(keyDerivationFunctionNode).isNotNull();
             assertThat(keyDerivationFunctionNode.getChildren()).hasSize(1);
             assertThat(keyDerivationFunctionNode.asString()).isEqualTo("KDF1");
 
             // MessageDigest under KeyDerivationFunction under PublicKeyEncryption
-            INode messageDigestNode = keyDerivationFunctionNode.getChildren().get(MessageDigest.class);
+            INode messageDigestNode =
+                    keyDerivationFunctionNode.getChildren().get(MessageDigest.class);
             assertThat(messageDigestNode).isNotNull();
             assertThat(messageDigestNode.getChildren()).hasSize(4);
             assertThat(messageDigestNode.asString()).isEqualTo("SHA256");
@@ -451,7 +456,8 @@ class BcIESEngineTest extends TestBase {
             assertThat(value0).isInstanceOf(ValueAction.class);
             assertThat(value0.asString()).isEqualTo("IESEngine");
 
-            DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> store1 = getStoreOfValueType(ValueAction.class, detectionStore.getChildren());
+            DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> store1 =
+                    getStoreOfValueType(ValueAction.class, detectionStore.getChildren());
             assertThat(store1).isNotNull();
             assertThat(store1.getDetectionValues()).hasSize(1);
             assertThat(store1.getDetectionValueContext()).isInstanceOf(KeyContext.class);
@@ -459,7 +465,8 @@ class BcIESEngineTest extends TestBase {
             assertThat(value01).isInstanceOf(ValueAction.class);
             assertThat(value01.asString()).isEqualTo("ECDHBasicAgreement");
 
-            DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> store2 = getStoreOfValueType(ValueAction.class, detectionStore.getChildren());
+            DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> store2 =
+                    getStoreOfValueType(ValueAction.class, detectionStore.getChildren());
             assertThat(store2).isNotNull();
             assertThat(store2.getDetectionValues()).hasSize(1);
             assertThat(store2.getDetectionValueContext()).isInstanceOf(KeyContext.class);
@@ -467,7 +474,8 @@ class BcIESEngineTest extends TestBase {
             assertThat(value02).isInstanceOf(ValueAction.class);
             assertThat(value02.asString()).isEqualTo("KDF1BytesGenerator");
 
-            DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> store21 = getStoreOfValueType(ValueAction.class, store2.getChildren());
+            DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> store21 =
+                    getStoreOfValueType(ValueAction.class, store2.getChildren());
             assertThat(store21).isNotNull();
             assertThat(store21.getDetectionValues()).hasSize(1);
             assertThat(store21.getDetectionValueContext()).isInstanceOf(DigestContext.class);
@@ -475,7 +483,8 @@ class BcIESEngineTest extends TestBase {
             assertThat(value021).isInstanceOf(ValueAction.class);
             assertThat(value021.asString()).isEqualTo("SHA256Digest");
 
-            DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> store3 = getStoreOfValueType(ValueAction.class, detectionStore.getChildren());
+            DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> store3 =
+                    getStoreOfValueType(ValueAction.class, detectionStore.getChildren());
             assertThat(store3).isNotNull();
             assertThat(store3.getDetectionValues()).hasSize(1);
             assertThat(store3.getDetectionValueContext()).isInstanceOf(MacContext.class);
@@ -483,7 +492,8 @@ class BcIESEngineTest extends TestBase {
             assertThat(value03).isInstanceOf(ValueAction.class);
             assertThat(value03.asString()).isEqualTo("HMac");
 
-            DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> store31 = getStoreOfValueType(ValueAction.class, store3.getChildren());
+            DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> store31 =
+                    getStoreOfValueType(ValueAction.class, store3.getChildren());
             assertThat(store31).isNotNull();
             assertThat(store31.getDetectionValues()).hasSize(1);
             assertThat(store31.getDetectionValueContext()).isInstanceOf(DigestContext.class);
@@ -503,13 +513,15 @@ class BcIESEngineTest extends TestBase {
             assertThat(publicKeyEncryptionNode.asString()).isEqualTo("IES");
 
             // KeyDerivationFunction under PublicKeyEncryption
-            INode keyDerivationFunctionNode = publicKeyEncryptionNode.getChildren().get(KeyDerivationFunction.class);
+            INode keyDerivationFunctionNode =
+                    publicKeyEncryptionNode.getChildren().get(KeyDerivationFunction.class);
             assertThat(keyDerivationFunctionNode).isNotNull();
             assertThat(keyDerivationFunctionNode.getChildren()).hasSize(1);
             assertThat(keyDerivationFunctionNode.asString()).isEqualTo("KDF1");
 
             // MessageDigest under KeyDerivationFunction under PublicKeyEncryption
-            INode messageDigestNode = keyDerivationFunctionNode.getChildren().get(MessageDigest.class);
+            INode messageDigestNode =
+                    keyDerivationFunctionNode.getChildren().get(MessageDigest.class);
             assertThat(messageDigestNode).isNotNull();
             assertThat(messageDigestNode.getChildren()).hasSize(4);
             assertThat(messageDigestNode.asString()).isEqualTo("SHA256");

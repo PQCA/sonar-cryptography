@@ -19,6 +19,8 @@
  */
 package com.ibm.plugin.rules.detection.bc.mac;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.ibm.engine.detection.DetectionStore;
 import com.ibm.engine.model.IValue;
 import com.ibm.engine.model.ParameterIdentifier;
@@ -34,17 +36,14 @@ import com.ibm.mapper.model.functionality.Digest;
 import com.ibm.mapper.model.functionality.Tag;
 import com.ibm.plugin.TestBase;
 import com.ibm.plugin.rules.detection.bc.BouncyCastleJars;
+import java.util.List;
+import javax.annotation.Nonnull;
 import org.junit.jupiter.api.Test;
 import org.sonar.java.checks.verifier.CheckVerifier;
 import org.sonar.plugins.java.api.JavaCheck;
 import org.sonar.plugins.java.api.JavaFileScannerContext;
 import org.sonar.plugins.java.api.semantic.Symbol;
 import org.sonar.plugins.java.api.tree.Tree;
-
-import javax.annotation.Nonnull;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 class BcKMACTest extends TestBase {
     @Test
@@ -62,7 +61,6 @@ class BcKMACTest extends TestBase {
             @Nonnull DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> detectionStore,
             @Nonnull List<INode> nodes) {
         if (findingId == 0) {
-
 
             /*
              * Detection Store
@@ -86,7 +84,8 @@ class BcKMACTest extends TestBase {
             assertThat(messageDigestNode.asString()).isEqualTo("KMAC");
 
             // ExtendableOutputFunction under MessageDigest
-            INode extendableOutputFunctionNode = messageDigestNode.getChildren().get(ExtendableOutputFunction.class);
+            INode extendableOutputFunctionNode =
+                    messageDigestNode.getChildren().get(ExtendableOutputFunction.class);
             assertThat(extendableOutputFunctionNode).isNotNull();
             assertThat(extendableOutputFunctionNode.getChildren()).hasSize(1);
             assertThat(extendableOutputFunctionNode.asString()).isEqualTo("cSHAKE");
@@ -113,7 +112,8 @@ class BcKMACTest extends TestBase {
             assertThat(value0).isInstanceOf(ValueAction.class);
             assertThat(value0.asString()).isEqualTo("KMAC");
 
-            DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> store1 = getStoreOfValueType(ParameterIdentifier.class, detectionStore.getChildren());
+            DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> store1 =
+                    getStoreOfValueType(ParameterIdentifier.class, detectionStore.getChildren());
             assertThat(store1).isNotNull();
             assertThat(store1.getDetectionValues()).hasSize(1);
             assertThat(store1.getDetectionValueContext()).isInstanceOf(MacContext.class);
@@ -133,7 +133,8 @@ class BcKMACTest extends TestBase {
             assertThat(macNode.asString()).isEqualTo("KMAC256");
 
             // ExtendableOutputFunction under Mac
-            INode extendableOutputFunctionNode = macNode.getChildren().get(ExtendableOutputFunction.class);
+            INode extendableOutputFunctionNode =
+                    macNode.getChildren().get(ExtendableOutputFunction.class);
             assertThat(extendableOutputFunctionNode).isNotNull();
             assertThat(extendableOutputFunctionNode.getChildren()).hasSize(1);
             assertThat(extendableOutputFunctionNode.asString()).isEqualTo("cSHAKE");
@@ -151,7 +152,8 @@ class BcKMACTest extends TestBase {
             assertThat(tagNode.asString()).isEqualTo("TAG");
 
             // ParameterSetIdentifier under Mac
-            INode parameterSetIdentifierNode = macNode.getChildren().get(ParameterSetIdentifier.class);
+            INode parameterSetIdentifierNode =
+                    macNode.getChildren().get(ParameterSetIdentifier.class);
             assertThat(parameterSetIdentifierNode).isNotNull();
             assertThat(parameterSetIdentifierNode.getChildren()).isEmpty();
             assertThat(parameterSetIdentifierNode.asString()).isEqualTo("256");

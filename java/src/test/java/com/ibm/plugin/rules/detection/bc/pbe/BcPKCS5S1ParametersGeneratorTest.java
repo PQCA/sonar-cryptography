@@ -19,6 +19,8 @@
  */
 package com.ibm.plugin.rules.detection.bc.pbe;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.ibm.engine.detection.DetectionStore;
 import com.ibm.engine.model.IValue;
 import com.ibm.engine.model.ValueAction;
@@ -33,17 +35,14 @@ import com.ibm.mapper.model.PasswordBasedEncryption;
 import com.ibm.mapper.model.functionality.Digest;
 import com.ibm.plugin.TestBase;
 import com.ibm.plugin.rules.detection.bc.BouncyCastleJars;
+import java.util.List;
+import javax.annotation.Nonnull;
 import org.junit.jupiter.api.Test;
 import org.sonar.java.checks.verifier.CheckVerifier;
 import org.sonar.plugins.java.api.JavaCheck;
 import org.sonar.plugins.java.api.JavaFileScannerContext;
 import org.sonar.plugins.java.api.semantic.Symbol;
 import org.sonar.plugins.java.api.tree.Tree;
-
-import javax.annotation.Nonnull;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 class BcPKCS5S1ParametersGeneratorTest extends TestBase {
 
@@ -118,7 +117,8 @@ class BcPKCS5S1ParametersGeneratorTest extends TestBase {
             assertThat(value0).isInstanceOf(ValueAction.class);
             assertThat(value0.asString()).isEqualTo("PKCS5S1ParametersGenerator");
 
-            DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> store1 = getStoreOfValueType(ValueAction.class, detectionStore.getChildren());
+            DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> store1 =
+                    getStoreOfValueType(ValueAction.class, detectionStore.getChildren());
             assertThat(store1).isNotNull();
             assertThat(store1.getDetectionValues()).hasSize(1);
             assertThat(store1.getDetectionValueContext()).isInstanceOf(DigestContext.class);
@@ -133,12 +133,14 @@ class BcPKCS5S1ParametersGeneratorTest extends TestBase {
 
             // PasswordBasedEncryption
             INode passwordBasedEncryptionNode = nodes.get(0);
-            assertThat(passwordBasedEncryptionNode.getKind()).isEqualTo(PasswordBasedEncryption.class);
+            assertThat(passwordBasedEncryptionNode.getKind())
+                    .isEqualTo(PasswordBasedEncryption.class);
             assertThat(passwordBasedEncryptionNode.getChildren()).hasSize(1);
             assertThat(passwordBasedEncryptionNode.asString()).isEqualTo("PBES1");
 
             // MessageDigest under PasswordBasedEncryption
-            INode messageDigestNode = passwordBasedEncryptionNode.getChildren().get(MessageDigest.class);
+            INode messageDigestNode =
+                    passwordBasedEncryptionNode.getChildren().get(MessageDigest.class);
             assertThat(messageDigestNode).isNotNull();
             assertThat(messageDigestNode.getChildren()).hasSize(4);
             assertThat(messageDigestNode.asString()).isEqualTo("SHA256");

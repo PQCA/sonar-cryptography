@@ -19,22 +19,22 @@
  */
 package com.ibm.plugin.rules.issues;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.ibm.engine.detection.DetectionStore;
 import com.ibm.engine.model.IValue;
 import com.ibm.engine.model.ValueAction;
 import com.ibm.engine.model.context.CipherContext;
 import com.ibm.engine.model.context.DigestContext;
+import com.ibm.mapper.model.BlockSize;
+import com.ibm.mapper.model.DigestSize;
 import com.ibm.mapper.model.INode;
 import com.ibm.mapper.model.MaskGenerationFunction;
 import com.ibm.mapper.model.MessageDigest;
+import com.ibm.mapper.model.Oid;
 import com.ibm.mapper.model.Padding;
 import com.ibm.mapper.model.PublicKeyEncryption;
+import com.ibm.mapper.model.functionality.Digest;
 import com.ibm.plugin.TestBase;
 import com.ibm.plugin.rules.detection.bc.BouncyCastleJars;
-import java.util.List;
-import javax.annotation.Nonnull;
 import org.junit.jupiter.api.Test;
 import org.sonar.java.checks.verifier.CheckVerifier;
 import org.sonar.plugins.java.api.JavaCheck;
@@ -42,10 +42,15 @@ import org.sonar.plugins.java.api.JavaFileScannerContext;
 import org.sonar.plugins.java.api.semantic.Symbol;
 import org.sonar.plugins.java.api.tree.Tree;
 
+import javax.annotation.Nonnull;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
 class DuplicateParameterFindingsTest extends TestBase {
 
     /**
-     * This test is associated to the detection rule CONSTRUCTOR_4 of `OAEPEncoding`. This
+     * This test is associated with the detection rule CONSTRUCTOR_4 of `OAEPEncoding`. This
      * constructor takes 2 different hashes (`org.bouncycastle.crypto.Digest`). The 1st is
      * `SHA3Digest()` with context `DigestContext<NONE>`. The 2nd is `SHA512Digest()` with context
      * `DigestContext<MGF1>`.
@@ -69,86 +74,157 @@ class DuplicateParameterFindingsTest extends TestBase {
             @Nonnull DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> detectionStore,
             @Nonnull List<INode> nodes) {
         if (findingId == 0) {
-            return;
+            /*
+             * Detection Store
+             */
+            assertThat(detectionStore).isNotNull();
+            assertThat(detectionStore.getDetectionValues()).hasSize(1);
+            assertThat(detectionStore.getDetectionValueContext()).isInstanceOf(CipherContext.class);
+            IValue<Tree> value0 = detectionStore.getDetectionValues().get(0);
+            assertThat(value0).isInstanceOf(ValueAction.class);
+            assertThat(value0.asString()).isEqualTo("RSAEngine");
+
+            /*
+             * Translation
+             */
+            assertThat(nodes).hasSize(1);
+
+            // PublicKeyEncryption
+            INode publicKeyEncryptionNode = nodes.get(0);
+            assertThat(publicKeyEncryptionNode.getKind()).isEqualTo(PublicKeyEncryption.class);
+            assertThat(publicKeyEncryptionNode.getChildren()).hasSize(1);
+            assertThat(publicKeyEncryptionNode.asString()).isEqualTo("RSA");
+
+            // Oid under PublicKeyEncryption
+            INode oidNode = publicKeyEncryptionNode.getChildren().get(Oid.class);
+            assertThat(oidNode).isNotNull();
+            assertThat(oidNode.getChildren()).isEmpty();
+            assertThat(oidNode.asString()).isEqualTo("1.2.840.113549.1.1.1");
+        } else if (findingId == 1) {
+            /*
+             * Detection Store
+             */
+            assertThat(detectionStore).isNotNull();
+            assertThat(detectionStore.getDetectionValues()).hasSize(1);
+            assertThat(detectionStore.getDetectionValueContext()).isInstanceOf(CipherContext.class);
+            IValue<Tree> value0 = detectionStore.getDetectionValues().get(0);
+            assertThat(value0).isInstanceOf(ValueAction.class);
+            assertThat(value0.asString()).isEqualTo("OAEPEncoding");
+
+            List<DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext>>
+                    valueActionStores =
+                            getStoresOfValueType(ValueAction.class, detectionStore.getChildren());
+
+            /* We expect only 3 ValueAction under OAEP */
+            assertThat(valueActionStores).hasSize(3);
+
+            /*
+             * Translation
+             */
+            assertThat(nodes).hasSize(1);
+
+            // PublicKeyEncryption
+            INode publicKeyEncryptionNode = nodes.get(0);
+            assertThat(publicKeyEncryptionNode.getKind()).isEqualTo(PublicKeyEncryption.class);
+            assertThat(publicKeyEncryptionNode.getChildren()).hasSize(4);
+            assertThat(publicKeyEncryptionNode.asString()).isEqualTo("RSA-OAEP");
+
+            // Padding under PublicKeyEncryption
+            INode paddingNode = publicKeyEncryptionNode.getChildren().get(Padding.class);
+            assertThat(paddingNode).isNotNull();
+            assertThat(paddingNode.getChildren()).isEmpty();
+            assertThat(paddingNode.asString()).isEqualTo("OAEP");
+
+            // Oid under PublicKeyEncryption
+            INode oidNode = publicKeyEncryptionNode.getChildren().get(Oid.class);
+            assertThat(oidNode).isNotNull();
+            assertThat(oidNode.getChildren()).isEmpty();
+            assertThat(oidNode.asString()).isEqualTo("1.2.840.113549.1.1.7");
+
+            // MessageDigest under PublicKeyEncryption
+            INode messageDigestNode =
+                    publicKeyEncryptionNode.getChildren().get(MessageDigest.class);
+            assertThat(messageDigestNode).isNotNull();
+            assertThat(messageDigestNode.getChildren()).hasSize(1);
+            assertThat(messageDigestNode.asString()).isEqualTo("SHA3");
+
+            // Digest under MessageDigest under PublicKeyEncryption
+            INode digestNode = messageDigestNode.getChildren().get(Digest.class);
+            assertThat(digestNode).isNotNull();
+            assertThat(digestNode.getChildren()).isEmpty();
+            assertThat(digestNode.asString()).isEqualTo("DIGEST");
+
+            // MaskGenerationFunction under PublicKeyEncryption
+            INode maskGenerationFunctionNode =
+                    publicKeyEncryptionNode.getChildren().get(MaskGenerationFunction.class);
+            assertThat(maskGenerationFunctionNode).isNotNull();
+            assertThat(maskGenerationFunctionNode.getChildren()).hasSize(2);
+            assertThat(maskGenerationFunctionNode.asString()).isEqualTo("MGF1");
+
+            // Oid under MaskGenerationFunction under PublicKeyEncryption
+            INode oidNode1 = maskGenerationFunctionNode.getChildren().get(Oid.class);
+            assertThat(oidNode1).isNotNull();
+            assertThat(oidNode1.getChildren()).isEmpty();
+            assertThat(oidNode1.asString()).isEqualTo("1.2.840.113549.1.1.8");
+
+            // MessageDigest under MaskGenerationFunction under PublicKeyEncryption
+            INode messageDigestNode1 =
+                    maskGenerationFunctionNode.getChildren().get(MessageDigest.class);
+            assertThat(messageDigestNode1).isNotNull();
+            assertThat(messageDigestNode1.getChildren()).hasSize(4);
+            assertThat(messageDigestNode1.asString()).isEqualTo("SHA512");
+
+            // BlockSize under MessageDigest under MaskGenerationFunction under PublicKeyEncryption
+            INode blockSizeNode = messageDigestNode1.getChildren().get(BlockSize.class);
+            assertThat(blockSizeNode).isNotNull();
+            assertThat(blockSizeNode.getChildren()).isEmpty();
+            assertThat(blockSizeNode.asString()).isEqualTo("1024");
+
+            // Digest under MessageDigest under MaskGenerationFunction under PublicKeyEncryption
+            INode digestNode1 = messageDigestNode1.getChildren().get(Digest.class);
+            assertThat(digestNode1).isNotNull();
+            assertThat(digestNode1.getChildren()).isEmpty();
+            assertThat(digestNode1.asString()).isEqualTo("DIGEST");
+
+            // DigestSize under MessageDigest under MaskGenerationFunction under PublicKeyEncryption
+            INode digestSizeNode = messageDigestNode1.getChildren().get(DigestSize.class);
+            assertThat(digestSizeNode).isNotNull();
+            assertThat(digestSizeNode.getChildren()).isEmpty();
+            assertThat(digestSizeNode.asString()).isEqualTo("512");
+
+            // Oid under MessageDigest under MaskGenerationFunction under PublicKeyEncryption
+            INode oidNode2 = messageDigestNode1.getChildren().get(Oid.class);
+            assertThat(oidNode2).isNotNull();
+            assertThat(oidNode2.getChildren()).isEmpty();
+            assertThat(oidNode2.asString()).isEqualTo("2.16.840.1.101.3.4.2.3");
+
+        } else if (findingId == 2) {
+            /*
+             * Detection Store
+             */
+            assertThat(detectionStore).isNotNull();
+            assertThat(detectionStore.getDetectionValues()).hasSize(1);
+            assertThat(detectionStore.getDetectionValueContext()).isInstanceOf(DigestContext.class);
+            IValue<Tree> value0 = detectionStore.getDetectionValues().get(0);
+            assertThat(value0).isInstanceOf(ValueAction.class);
+            assertThat(value0.asString()).isEqualTo("SHA3Digest");
+
+            /*
+             * Translation
+             */
+            assertThat(nodes).hasSize(1);
+
+            // MessageDigest
+            INode messageDigestNode = nodes.get(0);
+            assertThat(messageDigestNode.getKind()).isEqualTo(MessageDigest.class);
+            assertThat(messageDigestNode.getChildren()).hasSize(1);
+            assertThat(messageDigestNode.asString()).isEqualTo("SHA3");
+
+            // Digest under MessageDigest
+            INode digestNode = messageDigestNode.getChildren().get(Digest.class);
+            assertThat(digestNode).isNotNull();
+            assertThat(digestNode.getChildren()).isEmpty();
+            assertThat(digestNode.asString()).isEqualTo("DIGEST");
         }
-
-        /*
-         * Detection Store
-         */
-
-        assertThat(detectionStore.getDetectionValues()).hasSize(1);
-        assertThat(detectionStore.getDetectionValueContext()).isInstanceOf(CipherContext.class);
-        IValue<Tree> value0 = detectionStore.getDetectionValues().get(0);
-        assertThat(value0).isInstanceOf(ValueAction.class);
-        assertThat(value0.asString()).isEqualTo("OAEPEncoding");
-
-        List<DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext>> valueActionStores =
-                getStoresOfValueType(ValueAction.class, detectionStore.getChildren());
-
-        /* We expect only 3 ValueAction under OAEP, but there are currently 5 (2 duplicates with incorrect context) */
-        assertThat(valueActionStores).hasSize(3);
-
-        DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> store_2 =
-                valueActionStores.get(0);
-        assertThat(store_2.getDetectionValues()).hasSize(1);
-        assertThat(store_2.getDetectionValueContext()).isInstanceOf(CipherContext.class);
-        IValue<Tree> value0_2 = store_2.getDetectionValues().get(0);
-        assertThat(value0_2).isInstanceOf(ValueAction.class);
-        assertThat(value0_2.asString()).isEqualTo("RSAEngine");
-
-        DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> store_3 =
-                valueActionStores.get(1);
-        assertThat(store_3.getDetectionValues()).hasSize(1);
-        assertThat(store_3.getDetectionValueContext()).isInstanceOf(DigestContext.class);
-        IValue<Tree> value0_4 = store_3.getDetectionValues().get(0);
-        assertThat(value0_4).isInstanceOf(ValueAction.class);
-        assertThat(value0_4.asString()).isEqualTo("SHA3Digest");
-
-        DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> store_4 =
-                valueActionStores.get(2);
-        assertThat(store_4.getDetectionValues()).hasSize(1);
-        assertThat(store_4.getDetectionValueContext()).isInstanceOf(DigestContext.class);
-        IValue<Tree> value0_5 = store_4.getDetectionValues().get(0);
-        assertThat(value0_5).isInstanceOf(ValueAction.class);
-        assertThat(value0_5.asString()).isEqualTo("SHA512Digest");
-
-        /*
-         * Translation
-         */
-
-        assertThat(nodes).hasSize(1);
-
-        // PublicKeyEncryption
-        INode publicKeyEncryptionNode1 = nodes.get(0);
-        assertThat(publicKeyEncryptionNode1.getKind()).isEqualTo(PublicKeyEncryption.class);
-        assertThat(publicKeyEncryptionNode1.getChildren()).hasSize(4);
-        assertThat(publicKeyEncryptionNode1.asString()).isEqualTo("RSA-OAEP");
-
-        // MessageDigest under PublicKeyEncryption
-        INode messageDigestNode = publicKeyEncryptionNode1.getChildren().get(MessageDigest.class);
-        assertThat(messageDigestNode).isNotNull();
-        assertThat(messageDigestNode.getChildren()).hasSize(1);
-        assertThat(messageDigestNode.asString()).isEqualTo("SHA3");
-
-        // OptimalAsymmetricEncryptionPadding under PublicKeyEncryption
-        INode optimalAsymmetricEncryptionPaddingNode =
-                publicKeyEncryptionNode1.getChildren().get(Padding.class);
-        assertThat(optimalAsymmetricEncryptionPaddingNode).isNotNull();
-        assertThat(optimalAsymmetricEncryptionPaddingNode.getChildren()).isEmpty();
-        assertThat(optimalAsymmetricEncryptionPaddingNode.asString()).isEqualTo("OAEP");
-
-        // MaskGenerationFunction under PublicKeyEncryption
-        INode maskGenerationFunctionNode =
-                publicKeyEncryptionNode1.getChildren().get(MaskGenerationFunction.class);
-        assertThat(maskGenerationFunctionNode).isNotNull();
-        assertThat(maskGenerationFunctionNode.getChildren()).hasSize(2);
-        assertThat(maskGenerationFunctionNode.asString()).isEqualTo("MGF1");
-
-        // MessageDigest under MaskGenerationFunction under PublicKeyEncryption
-        INode messageDigestNode1 =
-                maskGenerationFunctionNode.getChildren().get(MessageDigest.class);
-        assertThat(messageDigestNode1).isNotNull();
-        assertThat(messageDigestNode1.getChildren()).hasSize(4);
-        assertThat(messageDigestNode1.asString()).isEqualTo("SHA512");
     }
 }

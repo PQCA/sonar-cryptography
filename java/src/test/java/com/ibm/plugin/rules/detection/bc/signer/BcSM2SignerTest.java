@@ -47,6 +47,7 @@ import org.sonar.plugins.java.api.semantic.Symbol;
 import org.sonar.plugins.java.api.tree.Tree;
 
 class BcSM2SignerTest extends TestBase {
+
     @Test
     void test() {
         CheckVerifier.newVerifier()
@@ -61,78 +62,127 @@ class BcSM2SignerTest extends TestBase {
             int findingId,
             @Nonnull DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> detectionStore,
             @Nonnull List<INode> nodes) {
-        /*
-         * Detection Store
-         */
+        if (findingId == 0) {
+            /*
+             * Detection Store
+             */
+            assertThat(detectionStore).isNotNull();
+            assertThat(detectionStore.getDetectionValues()).hasSize(1);
+            assertThat(detectionStore.getDetectionValueContext()).isInstanceOf(DigestContext.class);
+            IValue<Tree> value0 = detectionStore.getDetectionValues().get(0);
+            assertThat(value0).isInstanceOf(ValueAction.class);
+            assertThat(value0.asString()).isEqualTo("SHA256Digest");
 
-        assertThat(detectionStore.getDetectionValues()).hasSize(1);
-        assertThat(detectionStore.getDetectionValueContext()).isInstanceOf(SignatureContext.class);
-        IValue<Tree> value0 = detectionStore.getDetectionValues().get(0);
-        assertThat(value0).isInstanceOf(ValueAction.class);
-        assertThat(value0.asString()).isEqualTo("SM2Signer");
+            /*
+             * Translation
+             */
+            assertThat(nodes).hasSize(1);
 
-        DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> store_1 =
-                getStoreOfValueType(OperationMode.class, detectionStore.getChildren());
-        assertThat(store_1.getDetectionValues()).hasSize(1);
-        assertThat(store_1.getDetectionValueContext()).isInstanceOf(SignatureContext.class);
-        IValue<Tree> value0_1 = store_1.getDetectionValues().get(0);
-        assertThat(value0_1).isInstanceOf(OperationMode.class);
-        assertThat(value0_1.asString()).isEqualTo("1");
+            // MessageDigest
+            INode messageDigestNode = nodes.get(0);
+            assertThat(messageDigestNode.getKind()).isEqualTo(MessageDigest.class);
+            assertThat(messageDigestNode.getChildren()).hasSize(4);
+            assertThat(messageDigestNode.asString()).isEqualTo("SHA256");
 
-        DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> store_2 =
-                getStoreOfValueType(ValueAction.class, detectionStore.getChildren());
-        assertThat(store_2.getDetectionValues()).hasSize(1);
-        assertThat(store_2.getDetectionValueContext()).isInstanceOf(DigestContext.class);
-        IValue<Tree> value0_2 = store_2.getDetectionValues().get(0);
-        assertThat(value0_2).isInstanceOf(ValueAction.class);
-        assertThat(value0_2.asString()).isEqualTo("SHA256Digest");
+            // DigestSize under MessageDigest
+            INode digestSizeNode = messageDigestNode.getChildren().get(DigestSize.class);
+            assertThat(digestSizeNode).isNotNull();
+            assertThat(digestSizeNode.getChildren()).isEmpty();
+            assertThat(digestSizeNode.asString()).isEqualTo("256");
 
-        /*
-         * Translation
-         */
+            // BlockSize under MessageDigest
+            INode blockSizeNode = messageDigestNode.getChildren().get(BlockSize.class);
+            assertThat(blockSizeNode).isNotNull();
+            assertThat(blockSizeNode.getChildren()).isEmpty();
+            assertThat(blockSizeNode.asString()).isEqualTo("512");
 
-        assertThat(nodes).hasSize(1);
+            // Digest under MessageDigest
+            INode digestNode = messageDigestNode.getChildren().get(Digest.class);
+            assertThat(digestNode).isNotNull();
+            assertThat(digestNode.getChildren()).isEmpty();
+            assertThat(digestNode.asString()).isEqualTo("DIGEST");
 
-        // Signature
-        INode signatureNode = nodes.get(0);
-        assertThat(signatureNode.getKind()).isEqualTo(Signature.class);
-        assertThat(signatureNode.getChildren()).hasSize(2);
-        assertThat(signatureNode.asString()).isEqualTo("SM2");
+            // Oid under MessageDigest
+            INode oidNode = messageDigestNode.getChildren().get(Oid.class);
+            assertThat(oidNode).isNotNull();
+            assertThat(oidNode.getChildren()).isEmpty();
+            assertThat(oidNode.asString()).isEqualTo("2.16.840.1.101.3.4.2.1");
+        } else if (findingId == 1) {
+            /*
+             * Detection Store
+             */
+            assertThat(detectionStore).isNotNull();
+            assertThat(detectionStore.getDetectionValues()).hasSize(1);
+            assertThat(detectionStore.getDetectionValueContext())
+                    .isInstanceOf(SignatureContext.class);
+            IValue<Tree> value0 = detectionStore.getDetectionValues().get(0);
+            assertThat(value0).isInstanceOf(ValueAction.class);
+            assertThat(value0.asString()).isEqualTo("SM2Signer");
 
-        // Sign under Signature
-        INode signNode = signatureNode.getChildren().get(Sign.class);
-        assertThat(signNode).isNotNull();
-        assertThat(signNode.getChildren()).isEmpty();
-        assertThat(signNode.asString()).isEqualTo("SIGN");
+            DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> store1 =
+                    getStoreOfValueType(OperationMode.class, detectionStore.getChildren());
+            assertThat(store1).isNotNull();
+            assertThat(store1.getDetectionValues()).hasSize(1);
+            assertThat(store1.getDetectionValueContext()).isInstanceOf(SignatureContext.class);
+            IValue<Tree> value01 = store1.getDetectionValues().get(0);
+            assertThat(value01).isInstanceOf(OperationMode.class);
+            assertThat(value01.asString()).isEqualTo("1");
 
-        // MessageDigest under Signature
-        INode messageDigestNode = signatureNode.getChildren().get(MessageDigest.class);
-        assertThat(messageDigestNode).isNotNull();
-        assertThat(messageDigestNode.getChildren()).hasSize(4);
-        assertThat(messageDigestNode.asString()).isEqualTo("SHA256");
+            DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> store2 =
+                    getStoreOfValueType(ValueAction.class, detectionStore.getChildren());
+            assertThat(store2).isNotNull();
+            assertThat(store2.getDetectionValues()).hasSize(1);
+            assertThat(store2.getDetectionValueContext()).isInstanceOf(DigestContext.class);
+            IValue<Tree> value02 = store2.getDetectionValues().get(0);
+            assertThat(value02).isInstanceOf(ValueAction.class);
+            assertThat(value02.asString()).isEqualTo("SHA256Digest");
 
-        // DigestSize under MessageDigest under Signature
-        INode digestSizeNode = messageDigestNode.getChildren().get(DigestSize.class);
-        assertThat(digestSizeNode).isNotNull();
-        assertThat(digestSizeNode.getChildren()).isEmpty();
-        assertThat(digestSizeNode.asString()).isEqualTo("256");
+            /*
+             * Translation
+             */
+            assertThat(nodes).hasSize(1);
 
-        // Digest under MessageDigest under Signature
-        INode digestNode = messageDigestNode.getChildren().get(Digest.class);
-        assertThat(digestNode).isNotNull();
-        assertThat(digestNode.getChildren()).isEmpty();
-        assertThat(digestNode.asString()).isEqualTo("DIGEST");
+            // Signature
+            INode signatureNode = nodes.get(0);
+            assertThat(signatureNode.getKind()).isEqualTo(Signature.class);
+            assertThat(signatureNode.getChildren()).hasSize(2);
+            assertThat(signatureNode.asString()).isEqualTo("SM2");
 
-        // BlockSize under MessageDigest under Signature
-        INode blockSizeNode = messageDigestNode.getChildren().get(BlockSize.class);
-        assertThat(blockSizeNode).isNotNull();
-        assertThat(blockSizeNode.getChildren()).isEmpty();
-        assertThat(blockSizeNode.asString()).isEqualTo("512");
+            // Sign under Signature
+            INode signNode = signatureNode.getChildren().get(Sign.class);
+            assertThat(signNode).isNotNull();
+            assertThat(signNode.getChildren()).isEmpty();
+            assertThat(signNode.asString()).isEqualTo("SIGN");
 
-        // Oid under MessageDigest under Signature
-        INode oidNode = messageDigestNode.getChildren().get(Oid.class);
-        assertThat(oidNode).isNotNull();
-        assertThat(oidNode.getChildren()).isEmpty();
-        assertThat(oidNode.asString()).isEqualTo("2.16.840.1.101.3.4.2.1");
+            // MessageDigest under Signature
+            INode messageDigestNode = signatureNode.getChildren().get(MessageDigest.class);
+            assertThat(messageDigestNode).isNotNull();
+            assertThat(messageDigestNode.getChildren()).hasSize(4);
+            assertThat(messageDigestNode.asString()).isEqualTo("SHA256");
+
+            // DigestSize under MessageDigest under Signature
+            INode digestSizeNode = messageDigestNode.getChildren().get(DigestSize.class);
+            assertThat(digestSizeNode).isNotNull();
+            assertThat(digestSizeNode.getChildren()).isEmpty();
+            assertThat(digestSizeNode.asString()).isEqualTo("256");
+
+            // BlockSize under MessageDigest under Signature
+            INode blockSizeNode = messageDigestNode.getChildren().get(BlockSize.class);
+            assertThat(blockSizeNode).isNotNull();
+            assertThat(blockSizeNode.getChildren()).isEmpty();
+            assertThat(blockSizeNode.asString()).isEqualTo("512");
+
+            // Digest under MessageDigest under Signature
+            INode digestNode = messageDigestNode.getChildren().get(Digest.class);
+            assertThat(digestNode).isNotNull();
+            assertThat(digestNode.getChildren()).isEmpty();
+            assertThat(digestNode.asString()).isEqualTo("DIGEST");
+
+            // Oid under MessageDigest under Signature
+            INode oidNode = messageDigestNode.getChildren().get(Oid.class);
+            assertThat(oidNode).isNotNull();
+            assertThat(oidNode.getChildren()).isEmpty();
+            assertThat(oidNode.asString()).isEqualTo("2.16.840.1.101.3.4.2.1");
+        }
     }
 }

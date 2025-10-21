@@ -19,6 +19,8 @@
  */
 package com.ibm.plugin.rules.detection.bc.encapsulatedsecret;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.ibm.engine.detection.DetectionStore;
 import com.ibm.engine.model.IValue;
 import com.ibm.engine.model.KeySize;
@@ -37,17 +39,14 @@ import com.ibm.mapper.model.functionality.Digest;
 import com.ibm.mapper.model.functionality.Encapsulate;
 import com.ibm.plugin.TestBase;
 import com.ibm.plugin.rules.detection.bc.BouncyCastleJars;
+import java.util.List;
+import javax.annotation.Nonnull;
 import org.junit.jupiter.api.Test;
 import org.sonar.java.checks.verifier.CheckVerifier;
 import org.sonar.plugins.java.api.JavaCheck;
 import org.sonar.plugins.java.api.JavaFileScannerContext;
 import org.sonar.plugins.java.api.semantic.Symbol;
 import org.sonar.plugins.java.api.tree.Tree;
-
-import javax.annotation.Nonnull;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 class BcECIESKEMGeneratorTest extends TestBase {
     @Test
@@ -121,7 +120,8 @@ class BcECIESKEMGeneratorTest extends TestBase {
             assertThat(value0).isInstanceOf(ValueAction.class);
             assertThat(value0.asString()).isEqualTo("HKDFBytesGenerator");
 
-            DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> store1 = getStoreOfValueType(ValueAction.class, detectionStore.getChildren());
+            DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> store1 =
+                    getStoreOfValueType(ValueAction.class, detectionStore.getChildren());
             assertThat(store1).isNotNull();
             assertThat(store1.getDetectionValues()).hasSize(1);
             assertThat(store1.getDetectionValueContext()).isInstanceOf(DigestContext.class);
@@ -141,7 +141,8 @@ class BcECIESKEMGeneratorTest extends TestBase {
             assertThat(keyDerivationFunctionNode.asString()).isEqualTo("HKDF-SHA256");
 
             // MessageDigest under KeyDerivationFunction
-            INode messageDigestNode = keyDerivationFunctionNode.getChildren().get(MessageDigest.class);
+            INode messageDigestNode =
+                    keyDerivationFunctionNode.getChildren().get(MessageDigest.class);
             assertThat(messageDigestNode).isNotNull();
             assertThat(messageDigestNode.getChildren()).hasSize(4);
             assertThat(messageDigestNode.asString()).isEqualTo("SHA256");
@@ -169,7 +170,7 @@ class BcECIESKEMGeneratorTest extends TestBase {
             assertThat(oidNode).isNotNull();
             assertThat(oidNode.getChildren()).isEmpty();
             assertThat(oidNode.asString()).isEqualTo("2.16.840.1.101.3.4.2.1");
-        } else  if (findingId == 2) {
+        } else if (findingId == 2) {
             /*
              * Detection Store
              */
@@ -180,7 +181,8 @@ class BcECIESKEMGeneratorTest extends TestBase {
             assertThat(value0).isInstanceOf(ValueAction.class);
             assertThat(value0.asString()).isEqualTo("ECIESKEMGenerator");
 
-            DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> store1 = getStoreOfValueType(KeySize.class, detectionStore.getChildren());
+            DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> store1 =
+                    getStoreOfValueType(KeySize.class, detectionStore.getChildren());
             assertThat(store1).isNotNull();
             assertThat(store1.getDetectionValues()).hasSize(1);
             assertThat(store1.getDetectionValueContext()).isInstanceOf(KeyContext.class);
@@ -188,7 +190,8 @@ class BcECIESKEMGeneratorTest extends TestBase {
             assertThat(value01).isInstanceOf(KeySize.class);
             assertThat(value01.asString()).isEqualTo("2048");
 
-            DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> store2 = getStoreOfValueType(ValueAction.class, detectionStore.getChildren());
+            DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> store2 =
+                    getStoreOfValueType(ValueAction.class, detectionStore.getChildren());
             assertThat(store2).isNotNull();
             assertThat(store2.getDetectionValues()).hasSize(1);
             assertThat(store2.getDetectionValueContext()).isInstanceOf(KeyContext.class);
@@ -196,7 +199,8 @@ class BcECIESKEMGeneratorTest extends TestBase {
             assertThat(value02).isInstanceOf(ValueAction.class);
             assertThat(value02.asString()).isEqualTo("HKDFBytesGenerator");
 
-            DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> store21 = getStoreOfValueType(ValueAction.class, store2.getChildren());
+            DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> store21 =
+                    getStoreOfValueType(ValueAction.class, store2.getChildren());
             assertThat(store21).isNotNull();
             assertThat(store21.getDetectionValues()).hasSize(1);
             assertThat(store21.getDetectionValueContext()).isInstanceOf(DigestContext.class);
@@ -211,35 +215,41 @@ class BcECIESKEMGeneratorTest extends TestBase {
 
             // KeyEncapsulationMechanism
             INode keyEncapsulationMechanismNode = nodes.get(0);
-            assertThat(keyEncapsulationMechanismNode.getKind()).isEqualTo(KeyEncapsulationMechanism.class);
+            assertThat(keyEncapsulationMechanismNode.getKind())
+                    .isEqualTo(KeyEncapsulationMechanism.class);
             assertThat(keyEncapsulationMechanismNode.getChildren()).hasSize(3);
             assertThat(keyEncapsulationMechanismNode.asString()).isEqualTo("ECIES-KEM");
 
             // KeyDerivationFunction under KeyEncapsulationMechanism
-            INode keyDerivationFunctionNode = keyEncapsulationMechanismNode.getChildren().get(KeyDerivationFunction.class);
+            INode keyDerivationFunctionNode =
+                    keyEncapsulationMechanismNode.getChildren().get(KeyDerivationFunction.class);
             assertThat(keyDerivationFunctionNode).isNotNull();
             assertThat(keyDerivationFunctionNode.getChildren()).hasSize(1);
             assertThat(keyDerivationFunctionNode.asString()).isEqualTo("HKDF-SHA256");
 
             // MessageDigest under KeyDerivationFunction under KeyEncapsulationMechanism
-            INode messageDigestNode = keyDerivationFunctionNode.getChildren().get(MessageDigest.class);
+            INode messageDigestNode =
+                    keyDerivationFunctionNode.getChildren().get(MessageDigest.class);
             assertThat(messageDigestNode).isNotNull();
             assertThat(messageDigestNode.getChildren()).hasSize(4);
             assertThat(messageDigestNode.asString()).isEqualTo("SHA256");
 
-            // BlockSize under MessageDigest under KeyDerivationFunction under KeyEncapsulationMechanism
+            // BlockSize under MessageDigest under KeyDerivationFunction under
+            // KeyEncapsulationMechanism
             INode blockSizeNode = messageDigestNode.getChildren().get(BlockSize.class);
             assertThat(blockSizeNode).isNotNull();
             assertThat(blockSizeNode.getChildren()).isEmpty();
             assertThat(blockSizeNode.asString()).isEqualTo("512");
 
-            // DigestSize under MessageDigest under KeyDerivationFunction under KeyEncapsulationMechanism
+            // DigestSize under MessageDigest under KeyDerivationFunction under
+            // KeyEncapsulationMechanism
             INode digestSizeNode = messageDigestNode.getChildren().get(DigestSize.class);
             assertThat(digestSizeNode).isNotNull();
             assertThat(digestSizeNode.getChildren()).isEmpty();
             assertThat(digestSizeNode.asString()).isEqualTo("256");
 
-            // Digest under MessageDigest under KeyDerivationFunction under KeyEncapsulationMechanism
+            // Digest under MessageDigest under KeyDerivationFunction under
+            // KeyEncapsulationMechanism
             INode digestNode = messageDigestNode.getChildren().get(Digest.class);
             assertThat(digestNode).isNotNull();
             assertThat(digestNode.getChildren()).isEmpty();
@@ -252,7 +262,8 @@ class BcECIESKEMGeneratorTest extends TestBase {
             assertThat(oidNode.asString()).isEqualTo("2.16.840.1.101.3.4.2.1");
 
             // Encapsulate under KeyEncapsulationMechanism
-            INode encapsulateNode = keyEncapsulationMechanismNode.getChildren().get(Encapsulate.class);
+            INode encapsulateNode =
+                    keyEncapsulationMechanismNode.getChildren().get(Encapsulate.class);
             assertThat(encapsulateNode).isNotNull();
             assertThat(encapsulateNode.getChildren()).isEmpty();
             assertThat(encapsulateNode.asString()).isEqualTo("ENCAPSULATE");

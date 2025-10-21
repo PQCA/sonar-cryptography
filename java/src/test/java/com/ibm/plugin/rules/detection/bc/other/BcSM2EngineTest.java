@@ -22,15 +22,23 @@ package com.ibm.plugin.rules.detection.bc.other;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.ibm.engine.detection.DetectionStore;
+import com.ibm.engine.model.Algorithm;
 import com.ibm.engine.model.IValue;
 import com.ibm.engine.model.OperationMode;
 import com.ibm.engine.model.ValueAction;
 import com.ibm.engine.model.context.CipherContext;
 import com.ibm.engine.model.context.DigestContext;
+import com.ibm.engine.model.context.KeyContext;
+import com.ibm.mapper.model.BlockSize;
+import com.ibm.mapper.model.DigestSize;
 import com.ibm.mapper.model.INode;
+import com.ibm.mapper.model.Key;
 import com.ibm.mapper.model.MessageDigest;
+import com.ibm.mapper.model.Oid;
 import com.ibm.mapper.model.PublicKeyEncryption;
+import com.ibm.mapper.model.functionality.Digest;
 import com.ibm.mapper.model.functionality.Encrypt;
+import com.ibm.mapper.model.functionality.KeyGeneration;
 import com.ibm.plugin.TestBase;
 import com.ibm.plugin.rules.detection.bc.BouncyCastleJars;
 import java.util.List;
@@ -59,56 +67,160 @@ class BcSM2EngineTest extends TestBase {
             @Nonnull List<INode> nodes) {
         // This first finding comes from JCA and is covered in another test
         if (findingId == 0) {
-            return;
+            /*
+             * Detection Store
+             */
+            assertThat(detectionStore).isNotNull();
+            assertThat(detectionStore.getDetectionValues()).hasSize(1);
+            assertThat(detectionStore.getDetectionValueContext()).isInstanceOf(KeyContext.class);
+            IValue<Tree> value0 = detectionStore.getDetectionValues().get(0);
+            assertThat(value0).isInstanceOf(Algorithm.class);
+            assertThat(value0.asString()).isEqualTo("EC");
+
+            /*
+             * Translation
+             */
+            assertThat(nodes).hasSize(1);
+
+            // Key
+            INode keyNode = nodes.get(0);
+            assertThat(keyNode.getKind()).isEqualTo(Key.class);
+            assertThat(keyNode.getChildren()).hasSize(1);
+            assertThat(keyNode.asString()).isEqualTo("EC");
+
+            // PublicKeyEncryption under Key
+            INode publicKeyEncryptionNode = keyNode.getChildren().get(PublicKeyEncryption.class);
+            assertThat(publicKeyEncryptionNode).isNotNull();
+            assertThat(publicKeyEncryptionNode.getChildren()).hasSize(1);
+            assertThat(publicKeyEncryptionNode.asString()).isEqualTo("EC");
+
+            // KeyGeneration under PublicKeyEncryption under Key
+            INode keyGenerationNode =
+                    publicKeyEncryptionNode.getChildren().get(KeyGeneration.class);
+            assertThat(keyGenerationNode).isNotNull();
+            assertThat(keyGenerationNode.getChildren()).isEmpty();
+            assertThat(keyGenerationNode.asString()).isEqualTo("KEYGENERATION");
+        } else if (findingId == 1) {
+            /*
+             * Detection Store
+             */
+            assertThat(detectionStore).isNotNull();
+            assertThat(detectionStore.getDetectionValues()).hasSize(1);
+            assertThat(detectionStore.getDetectionValueContext()).isInstanceOf(CipherContext.class);
+            IValue<Tree> value0 = detectionStore.getDetectionValues().get(0);
+            assertThat(value0).isInstanceOf(ValueAction.class);
+            assertThat(value0.asString()).isEqualTo("SM2Engine");
+
+            DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> store1 =
+                    getStoreOfValueType(OperationMode.class, detectionStore.getChildren());
+            assertThat(store1).isNotNull();
+            assertThat(store1.getDetectionValues()).hasSize(1);
+            assertThat(store1.getDetectionValueContext()).isInstanceOf(CipherContext.class);
+            IValue<Tree> value01 = store1.getDetectionValues().get(0);
+            assertThat(value01).isInstanceOf(OperationMode.class);
+            assertThat(value01.asString()).isEqualTo("1");
+
+            DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> store2 =
+                    getStoreOfValueType(ValueAction.class, detectionStore.getChildren());
+            assertThat(store2).isNotNull();
+            assertThat(store2.getDetectionValues()).hasSize(1);
+            assertThat(store2.getDetectionValueContext()).isInstanceOf(DigestContext.class);
+            IValue<Tree> value02 = store2.getDetectionValues().get(0);
+            assertThat(value02).isInstanceOf(ValueAction.class);
+            assertThat(value02.asString()).isEqualTo("SHA256Digest");
+
+            /*
+             * Translation
+             */
+            assertThat(nodes).hasSize(1);
+
+            // PublicKeyEncryption
+            INode publicKeyEncryptionNode = nodes.get(0);
+            assertThat(publicKeyEncryptionNode.getKind()).isEqualTo(PublicKeyEncryption.class);
+            assertThat(publicKeyEncryptionNode.getChildren()).hasSize(2);
+            assertThat(publicKeyEncryptionNode.asString()).isEqualTo("SM2");
+
+            // MessageDigest under PublicKeyEncryption
+            INode messageDigestNode =
+                    publicKeyEncryptionNode.getChildren().get(MessageDigest.class);
+            assertThat(messageDigestNode).isNotNull();
+            assertThat(messageDigestNode.getChildren()).hasSize(4);
+            assertThat(messageDigestNode.asString()).isEqualTo("SHA256");
+
+            // DigestSize under MessageDigest under PublicKeyEncryption
+            INode digestSizeNode = messageDigestNode.getChildren().get(DigestSize.class);
+            assertThat(digestSizeNode).isNotNull();
+            assertThat(digestSizeNode.getChildren()).isEmpty();
+            assertThat(digestSizeNode.asString()).isEqualTo("256");
+
+            // BlockSize under MessageDigest under PublicKeyEncryption
+            INode blockSizeNode = messageDigestNode.getChildren().get(BlockSize.class);
+            assertThat(blockSizeNode).isNotNull();
+            assertThat(blockSizeNode.getChildren()).isEmpty();
+            assertThat(blockSizeNode.asString()).isEqualTo("512");
+
+            // Oid under MessageDigest under PublicKeyEncryption
+            INode oidNode = messageDigestNode.getChildren().get(Oid.class);
+            assertThat(oidNode).isNotNull();
+            assertThat(oidNode.getChildren()).isEmpty();
+            assertThat(oidNode.asString()).isEqualTo("2.16.840.1.101.3.4.2.1");
+
+            // Digest under MessageDigest under PublicKeyEncryption
+            INode digestNode = messageDigestNode.getChildren().get(Digest.class);
+            assertThat(digestNode).isNotNull();
+            assertThat(digestNode.getChildren()).isEmpty();
+            assertThat(digestNode.asString()).isEqualTo("DIGEST");
+
+            // Encrypt under PublicKeyEncryption
+            INode encryptNode = publicKeyEncryptionNode.getChildren().get(Encrypt.class);
+            assertThat(encryptNode).isNotNull();
+            assertThat(encryptNode.getChildren()).isEmpty();
+            assertThat(encryptNode.asString()).isEqualTo("ENCRYPT");
+        } else if (findingId == 2) {
+            /*
+             * Detection Store
+             */
+            assertThat(detectionStore).isNotNull();
+            assertThat(detectionStore.getDetectionValues()).hasSize(1);
+            assertThat(detectionStore.getDetectionValueContext()).isInstanceOf(DigestContext.class);
+            IValue<Tree> value0 = detectionStore.getDetectionValues().get(0);
+            assertThat(value0).isInstanceOf(ValueAction.class);
+            assertThat(value0.asString()).isEqualTo("SHA256Digest");
+
+            /*
+             * Translation
+             */
+            assertThat(nodes).hasSize(1);
+
+            // MessageDigest
+            INode messageDigestNode = nodes.get(0);
+            assertThat(messageDigestNode.getKind()).isEqualTo(MessageDigest.class);
+            assertThat(messageDigestNode.getChildren()).hasSize(4);
+            assertThat(messageDigestNode.asString()).isEqualTo("SHA256");
+
+            // DigestSize under MessageDigest
+            INode digestSizeNode = messageDigestNode.getChildren().get(DigestSize.class);
+            assertThat(digestSizeNode).isNotNull();
+            assertThat(digestSizeNode.getChildren()).isEmpty();
+            assertThat(digestSizeNode.asString()).isEqualTo("256");
+
+            // BlockSize under MessageDigest
+            INode blockSizeNode = messageDigestNode.getChildren().get(BlockSize.class);
+            assertThat(blockSizeNode).isNotNull();
+            assertThat(blockSizeNode.getChildren()).isEmpty();
+            assertThat(blockSizeNode.asString()).isEqualTo("512");
+
+            // Oid under MessageDigest
+            INode oidNode = messageDigestNode.getChildren().get(Oid.class);
+            assertThat(oidNode).isNotNull();
+            assertThat(oidNode.getChildren()).isEmpty();
+            assertThat(oidNode.asString()).isEqualTo("2.16.840.1.101.3.4.2.1");
+
+            // Digest under MessageDigest
+            INode digestNode = messageDigestNode.getChildren().get(Digest.class);
+            assertThat(digestNode).isNotNull();
+            assertThat(digestNode.getChildren()).isEmpty();
+            assertThat(digestNode.asString()).isEqualTo("DIGEST");
         }
-
-        /*
-         * Detection Store
-         */
-        assertThat(detectionStore.getDetectionValues()).hasSize(1);
-        assertThat(detectionStore.getDetectionValueContext()).isInstanceOf(CipherContext.class);
-        IValue<Tree> value0 = detectionStore.getDetectionValues().get(0);
-        assertThat(value0).isInstanceOf(ValueAction.class);
-        assertThat(value0.asString()).isEqualTo("SM2Engine");
-
-        DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> store_1 =
-                getStoreOfValueType(OperationMode.class, detectionStore.getChildren());
-        assertThat(store_1.getDetectionValues()).hasSize(1);
-        assertThat(store_1.getDetectionValueContext()).isInstanceOf(CipherContext.class);
-        IValue<Tree> value0_1 = store_1.getDetectionValues().get(0);
-        assertThat(value0_1).isInstanceOf(OperationMode.class);
-        assertThat(value0_1.asString()).isEqualTo("1");
-
-        DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> store_2 =
-                getStoreOfValueType(ValueAction.class, detectionStore.getChildren());
-        assertThat(store_2.getDetectionValues()).hasSize(1);
-        assertThat(store_2.getDetectionValueContext()).isInstanceOf(DigestContext.class);
-        IValue<Tree> value0_2 = store_2.getDetectionValues().get(0);
-        assertThat(value0_2).isInstanceOf(ValueAction.class);
-        assertThat(value0_2.asString()).isEqualTo("SHA256Digest");
-
-        /*
-         * Translation
-         */
-
-        assertThat(nodes).hasSize(1);
-
-        // BlockCipher
-        INode blockCipherNode = nodes.get(0);
-        assertThat(blockCipherNode.getKind()).isEqualTo(PublicKeyEncryption.class);
-        assertThat(blockCipherNode.getChildren()).hasSize(2);
-        assertThat(blockCipherNode.asString()).isEqualTo("SM2");
-
-        // Encrypt under BlockCipher
-        INode encryptNode = blockCipherNode.getChildren().get(Encrypt.class);
-        assertThat(encryptNode).isNotNull();
-        assertThat(encryptNode.getChildren()).isEmpty();
-        assertThat(encryptNode.asString()).isEqualTo("ENCRYPT");
-
-        // MessageDigest under BlockCipher
-        INode messageDigestNode = blockCipherNode.getChildren().get(MessageDigest.class);
-        assertThat(messageDigestNode).isNotNull();
-        assertThat(messageDigestNode.getChildren()).hasSize(4);
-        assertThat(messageDigestNode.asString()).isEqualTo("SHA256");
     }
 }
