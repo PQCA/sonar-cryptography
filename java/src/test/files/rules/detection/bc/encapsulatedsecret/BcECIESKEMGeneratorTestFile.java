@@ -12,11 +12,12 @@ public class BcECIESKEMGeneratorTestFile {
     public static void main(String[] args) {
         // Initialize the parameters
         int keyLen = 2048; // Key length in bits
+
         SecureRandom rnd = new SecureRandom(); // Secure random number generator
-        Digest digest = new SHA256Digest(); // Digest
-        DerivationFunction kdf =
-                new HKDFBytesGenerator(digest); // Your DerivationFunction implementation
-        // Noncompliant@-1 {{(KeyDerivationFunction) HKDF-SHA256}}
+
+        Digest digest = new SHA256Digest(); // Noncompliant {{(MessageDigest) SHA256}}
+
+        DerivationFunction kdf = new HKDFBytesGenerator(digest); // Noncompliant {{(KeyDerivationFunction) HKDF-SHA256}}
 
         // Initialize the ECIESKEMGenerator
         ECIESKEMGenerator kemGenerator =
