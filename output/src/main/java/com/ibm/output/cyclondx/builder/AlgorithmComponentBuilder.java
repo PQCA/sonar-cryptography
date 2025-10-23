@@ -49,6 +49,17 @@ import com.ibm.mapper.model.functionality.KeyGeneration;
 import com.ibm.mapper.model.functionality.Sign;
 import com.ibm.mapper.model.functionality.Tag;
 import com.ibm.mapper.model.functionality.Verify;
+import com.ibm.mapper.model.mode.CBC;
+import com.ibm.mapper.model.mode.CCM;
+import com.ibm.mapper.model.mode.CFB;
+import com.ibm.mapper.model.mode.CTR;
+import com.ibm.mapper.model.mode.ECB;
+import com.ibm.mapper.model.mode.GCM;
+import com.ibm.mapper.model.mode.OFB;
+import com.ibm.mapper.model.padding.OAEP;
+import com.ibm.mapper.model.padding.PKCS1;
+import com.ibm.mapper.model.padding.PKCS5;
+import com.ibm.mapper.model.padding.PKCS7;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -62,6 +73,8 @@ import org.cyclonedx.model.component.crypto.AlgorithmProperties;
 import org.cyclonedx.model.component.crypto.CryptoProperties;
 import org.cyclonedx.model.component.crypto.enums.AssetType;
 import org.cyclonedx.model.component.crypto.enums.CryptoFunction;
+import org.cyclonedx.model.component.crypto.enums.Mode;
+import org.cyclonedx.model.component.crypto.enums.Padding;
 import org.cyclonedx.model.component.crypto.enums.Primitive;
 import org.cyclonedx.model.component.evidence.Occurrence;
 
@@ -149,9 +162,25 @@ public class AlgorithmComponentBuilder implements IAlgorithmComponentBuilder {
                     curve);
         }
         this.mode = mode;
-        Optional<org.cyclonedx.model.component.crypto.enums.Mode> m =
-                Utils.parseStringToMode(mode.asString().toLowerCase());
-        m.ifPresent(this.algorithmProperties::setMode);
+        Mode cxMode;
+        if (mode instanceof CBC) {
+            cxMode = Mode.CBC;
+        } else if (mode instanceof CCM) {
+            cxMode = Mode.CCM;
+        } else if (mode instanceof CFB) {
+            cxMode = Mode.CFB;
+        } else if (mode instanceof CTR) {
+            cxMode = Mode.CTR;
+        } else if (mode instanceof ECB) {
+            cxMode = Mode.ECB;
+        } else if (mode instanceof GCM) {
+            cxMode = Mode.GCM;
+        } else if (mode instanceof OFB) {
+            cxMode = Mode.OFB;
+        } else {
+            cxMode = Mode.OTHER;
+        }
+        this.algorithmProperties.setMode(cxMode);
         return new AlgorithmComponentBuilder(
                 component,
                 cryptoProperties,
@@ -234,9 +263,19 @@ public class AlgorithmComponentBuilder implements IAlgorithmComponentBuilder {
         }
 
         this.padding = padding;
-        Optional<org.cyclonedx.model.component.crypto.enums.Padding> p =
-                Utils.parseStringToPadding(padding.asString().toLowerCase());
-        p.ifPresent(this.algorithmProperties::setPadding);
+        Padding cxPadding;
+        if (padding instanceof OAEP) {
+            cxPadding = Padding.OAEP;
+        } else if (padding instanceof PKCS5) {
+            cxPadding = Padding.PKCS5;
+        } else if (padding instanceof PKCS7) {
+            cxPadding = Padding.PKCS7;
+        } else if (padding instanceof PKCS1) {
+            cxPadding = Padding.PKCS1V15;
+        } else {
+            cxPadding = Padding.OTHER;
+        }
+        this.algorithmProperties.setPadding(cxPadding);
         return new AlgorithmComponentBuilder(
                 component,
                 cryptoProperties,

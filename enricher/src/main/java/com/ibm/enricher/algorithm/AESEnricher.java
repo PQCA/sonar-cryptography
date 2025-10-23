@@ -26,8 +26,14 @@ import com.ibm.mapper.model.KeyLength;
 import com.ibm.mapper.model.Mode;
 import com.ibm.mapper.model.Oid;
 import com.ibm.mapper.model.algorithms.AES;
+import com.ibm.mapper.model.mode.CBC;
 import com.ibm.mapper.model.mode.CCM;
+import com.ibm.mapper.model.mode.CFB;
+import com.ibm.mapper.model.mode.ECB;
 import com.ibm.mapper.model.mode.GCM;
+import com.ibm.mapper.model.mode.KW;
+import com.ibm.mapper.model.mode.KWP;
+import com.ibm.mapper.model.mode.OFB;
 import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -35,16 +41,16 @@ import javax.annotation.Nullable;
 public class AESEnricher implements IEnricher, IEnrichWithDefaultKeySize {
     private static final String BASE_OID = "2.16.840.1.101.3.4.1";
 
-    private static final Map<String, Integer> MODE_OID_MAP =
+    private static final Map<Class<? extends Mode>, Integer> MODE_OID_MAP =
             Map.of(
-                    "ecb", 1,
-                    "cbc", 2,
-                    "ofb", 3,
-                    "cfb", 4,
-                    "wrap", 5,
-                    "gcm", 6,
-                    "ccm", 7,
-                    "wrap-pad", 8);
+                    ECB.class, 1,
+                    CBC.class, 2,
+                    OFB.class, 3,
+                    CFB.class, 4,
+                    KW.class, 5,
+                    GCM.class, 6,
+                    CCM.class, 7,
+                    KWP.class, 8);
 
     private static final Map<Integer, Integer> KEYSIZE_OID_MAP =
             Map.of(
@@ -90,7 +96,7 @@ public class AESEnricher implements IEnricher, IEnrichWithDefaultKeySize {
         if (mode == null) {
             return builder.toString();
         }
-        Integer modeOidNumber = MODE_OID_MAP.get(mode.asString().toLowerCase());
+        Integer modeOidNumber = MODE_OID_MAP.get(mode.getClass());
         if (modeOidNumber != null) {
             if (keySizeOidNumber == null) {
                 builder.append(".");

@@ -63,7 +63,7 @@ class RelatedCryptoMaterialsTest extends TestBase {
                     return secretKey;
                 },
                 bom -> {
-                    assertThat(bom.getComponents()).hasSize(3);
+                    assertThat(bom.getComponents()).hasSize(2);
 
                     for (Component component : bom.getComponents()) {
                         asserts(component.getEvidence());
@@ -77,15 +77,8 @@ class RelatedCryptoMaterialsTest extends TestBase {
                                     .isNotNull();
                             final RelatedCryptoMaterialProperties relatedCryptoMaterialProperties =
                                     cryptoProperties.getRelatedCryptoMaterialProperties();
-                            if (relatedCryptoMaterialProperties
-                                    .getType()
-                                    .equals(RelatedCryptoMaterialType.TAG)) {
-                                assertThat(relatedCryptoMaterialProperties.getSize())
-                                        .isEqualTo(128);
-                            } else {
-                                assertThat(relatedCryptoMaterialProperties.getType())
-                                        .isEqualTo(RelatedCryptoMaterialType.SECRET_KEY);
-                            }
+                            assertThat(relatedCryptoMaterialProperties.getType())
+                                    .isEqualTo(RelatedCryptoMaterialType.SECRET_KEY);
                         }
                     }
                 });

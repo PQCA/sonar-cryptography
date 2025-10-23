@@ -35,6 +35,6 @@ public final class OFB extends Mode {
     }
 
     public OFB(int s, @Nonnull DetectionLocation detectionLocation) {
-        super("OFB-" + s, detectionLocation);
+        super("OFB" + s, detectionLocation);
     }
 }

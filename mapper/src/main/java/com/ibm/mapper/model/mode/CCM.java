@@ -19,9 +19,11 @@
  */
 package com.ibm.mapper.model.mode;
 
+import com.ibm.mapper.model.INode;
 import com.ibm.mapper.model.Mode;
 import com.ibm.mapper.model.TagLength;
 import com.ibm.mapper.utils.DetectionLocation;
+import java.util.Optional;
 import javax.annotation.Nonnull;
 
 public final class CCM extends Mode {
@@ -33,5 +35,15 @@ public final class CCM extends Mode {
     public CCM(int tagLength, @Nonnull DetectionLocation detectionLocation) {
         super("CCM", detectionLocation);
         this.put(new TagLength(tagLength, detectionLocation));
+    }
+
+    /** Returns a name of the form "CCMX" where X is the tag length */
+    @Override
+    @Nonnull
+    public String asString() {
+        final StringBuilder builtName = new StringBuilder(this.getName());
+        final Optional<INode> tagLength = this.hasChildOfType(TagLength.class);
+        tagLength.ifPresent(node -> builtName.append(node.asString()));
+        return builtName.toString();
     }
 }
