@@ -54,7 +54,7 @@ public final class Reorganizer implements IReorganizer {
                 (node, rule) -> {
                     String message =
                             String.format(
-                                    "[reorganizer] MATCH: Node '%s' & Rule %s",
+                                    "[reorganizer] MATCH: Node '%s' with rule %s",
                                     node.asString(), rule.asString());
                     LOGGER.debug(message);
                 });
@@ -67,29 +67,28 @@ public final class Reorganizer implements IReorganizer {
          * Idea: We iterate on all nodes of the tree with a BFS (done by `reorganizeRecursive`),
          * and we check for each node if it matches with a reorganization rule (in `applyReorganizerRules`).
          * If it matches, we apply the reorganization and return the updated list of root nodes of the
-         * translation tree. We stop the BFS and start the process again by iterating on all nodes of
-         * starting from the new roots.
+         * translation tree. We continue the BFS with the new nodes instead of restarting from the beginning.
          * This process ends once no reorganization rule matches with the current translation tree. When
          * this is the case, `reorganizeRecursive` returns an empty Optional, which is our condition to
          * stop the while loop defined in `reorganize`.
          */
-        List<INode> lastRootNodes = rootNodes;
+        List<INode> currentRootNodes = rootNodes;
         Optional<List<INode>> newRootNodes = Optional.of(rootNodes);
         while (newRootNodes.isPresent() && iterations < MAX_ITERATIONS) {
-            lastRootNodes = newRootNodes.get();
+            currentRootNodes = newRootNodes.get();
             newRootNodes =
                     reorganizeRecursive(
-                            lastRootNodes.stream()
+                            currentRootNodes.stream()
                                     .map(childNode -> Pair.<INode, INode>of(childNode, null))
                                     .toList(),
-                            lastRootNodes,
+                            currentRootNodes,
                             iterations);
             iterations += 1;
         }
         if (iterations == MAX_ITERATIONS) {
-            return lastRootNodes;
+            return currentRootNodes;
         }
-        return lastRootNodes;
+        return currentRootNodes;
     }
 
     /**
@@ -100,7 +99,7 @@ public final class Reorganizer implements IReorganizer {
      *     node, its parent is {@code null})
      * @param rootNodes - Root nodes of the translation tree
      * @return Optional containing the new root nodes of the translation tree if a reorganization
-     *     has occured, empty Optional otherwise
+     *     has occurred, empty Optional otherwise
      */
     @Nonnull
     private Optional<List<INode>> reorganizeRecursive(

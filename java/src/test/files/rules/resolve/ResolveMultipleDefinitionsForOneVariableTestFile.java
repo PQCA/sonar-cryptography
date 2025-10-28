@@ -26,11 +26,11 @@ public class ResolveMultipleDefinitionsForOneVariableTestFile {
         Cipher cipher;
         int mode;
         if ( message.length > 5 ) {
-            // Noncompliant@+1 {{(BlockCipher) AES128-ECB-PKCS5}}
+            // Noncompliant@+1 {{(SecretKey) AES}}
             cipher = Cipher.getInstance(TRANSFORMATION);
             mode = Cipher.DECRYPT_MODE;
         } else {
-            // Noncompliant@+1 {{(BlockCipher) AES128-CBC}}
+            // Noncompliant@+1 {{(SecretKey) AES}}
             cipher = Cipher.getInstance("AES/CBC/NoPadding");
             mode = Cipher.ENCRYPT_MODE;
         }

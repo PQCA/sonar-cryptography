@@ -268,126 +268,98 @@ class JcaGCMParameterSpecTest extends TestBase {
             /*
              * Detection Store
              */
-
+            assertThat(detectionStore).isNotNull();
             assertThat(detectionStore.getDetectionValues()).hasSize(1);
             assertThat(detectionStore.getDetectionValueContext()).isInstanceOf(CipherContext.class);
             IValue<Tree> value0 = detectionStore.getDetectionValues().get(0);
             assertThat(value0).isInstanceOf(Algorithm.class);
             assertThat(value0.asString()).isEqualTo("AES");
 
-            DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> store_1 =
+            DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> store1 =
                     getStoreOfValueType(OperationMode.class, detectionStore.getChildren());
-            assertThat(store_1.getDetectionValues()).hasSize(1);
-            assertThat(store_1.getDetectionValueContext()).isInstanceOf(CipherContext.class);
-            IValue<Tree> value0_1 = store_1.getDetectionValues().get(0);
-            assertThat(value0_1).isInstanceOf(OperationMode.class);
-            assertThat(value0_1.asString()).isEqualTo("2");
+            assertThat(store1).isNotNull();
+            assertThat(store1.getDetectionValues()).hasSize(1);
+            assertThat(store1.getDetectionValueContext()).isInstanceOf(CipherContext.class);
+            IValue<Tree> value01 = store1.getDetectionValues().get(0);
+            assertThat(value01).isInstanceOf(OperationMode.class);
+            assertThat(value01.asString()).isEqualTo("2");
 
-            DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> store_1_1 =
-                    getStoreOfValueType(Algorithm.class, store_1.getChildren());
-            assertThat(store_1_1.getDetectionValues()).hasSize(1);
-            assertThat(store_1_1.getDetectionValueContext()).isInstanceOf(SecretKeyContext.class);
-            IValue<Tree> value0_1_1 = store_1_1.getDetectionValues().get(0);
-            assertThat(value0_1_1).isInstanceOf(Algorithm.class);
-            assertThat(value0_1_1.asString()).isEqualTo("AES");
+            DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> store11 =
+                    getStoreOfValueType(Algorithm.class, store1.getChildren());
+            assertThat(store11).isNotNull();
+            assertThat(store11.getDetectionValues()).hasSize(1);
+            assertThat(store11.getDetectionValueContext()).isInstanceOf(SecretKeyContext.class);
+            IValue<Tree> value011 = store11.getDetectionValues().get(0);
+            assertThat(value011).isInstanceOf(Algorithm.class);
+            assertThat(value011.asString()).isEqualTo("AES");
 
-            DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> store_1_2 =
-                    getStoreOfValueType(com.ibm.engine.model.Mode.class, store_1.getChildren());
-            assertThat(store_1_2.getDetectionValues()).hasSize(2);
-            assertThat(store_1_2.getDetectionValueContext())
+            DetectionStore<JavaCheck, Tree, Symbol, JavaFileScannerContext> store12 =
+                    getStoreOfValueType(com.ibm.engine.model.Mode.class, store1.getChildren());
+            assertThat(store12).isNotNull();
+            assertThat(store12.getDetectionValues()).hasSize(2);
+            assertThat(store12.getDetectionValueContext())
                     .isInstanceOf(AlgorithmParameterContext.class);
-            IValue<Tree> value0_1_2 = store_1_2.getDetectionValues().get(0);
-            assertThat(value0_1_2).isInstanceOf(com.ibm.engine.model.Mode.class);
-            assertThat(value0_1_2.asString()).isEqualTo("GCM");
+            IValue<Tree> value012 = store12.getDetectionValues().get(0);
+            assertThat(value012).isInstanceOf(com.ibm.engine.model.Mode.class);
+            assertThat(value012.asString()).isEqualTo("GCM");
 
-            IValue<Tree> value1_1_2 = store_1_2.getDetectionValues().get(1);
-            assertThat(value1_1_2).isInstanceOf(TagSize.class);
-            assertThat(value1_1_2.asString()).isEqualTo("128");
+            IValue<Tree> value112 = store12.getDetectionValues().get(1);
+            assertThat(value112).isInstanceOf(TagSize.class);
+            assertThat(value112.asString()).isEqualTo("128");
 
             /*
              * Translation
              */
-
             assertThat(nodes).hasSize(1);
 
-            // AuthenticatedEncryption
-            INode authenticatedEncryptionNode = nodes.get(0);
-            assertThat(authenticatedEncryptionNode.getKind())
-                    .isEqualTo(AuthenticatedEncryption.class);
-            assertThat(authenticatedEncryptionNode.getChildren()).hasSize(7);
+            // SecretKey
+            INode secretKeyNode = nodes.get(0);
+            assertThat(secretKeyNode.getKind()).isEqualTo(SecretKey.class);
+            assertThat(secretKeyNode.getChildren()).hasSize(1);
+            assertThat(secretKeyNode.asString()).isEqualTo("AES");
+
+            // AuthenticatedEncryption under SecretKey
+            INode authenticatedEncryptionNode =
+                    secretKeyNode.getChildren().get(AuthenticatedEncryption.class);
+            assertThat(authenticatedEncryptionNode).isNotNull();
+            assertThat(authenticatedEncryptionNode.getChildren()).hasSize(6);
             assertThat(authenticatedEncryptionNode.asString()).isEqualTo("AES128-GCM");
 
-            // KeyLength under AuthenticatedEncryption
-            INode keyLengthNode = authenticatedEncryptionNode.getChildren().get(KeyLength.class);
-            assertThat(keyLengthNode).isNotNull();
-            assertThat(keyLengthNode.getChildren()).isEmpty();
-            assertThat(keyLengthNode.asString()).isEqualTo("128");
-
-            // TagLength under AuthenticatedEncryption
+            // TagLength under AuthenticatedEncryption under SecretKey
             INode tagLengthNode = authenticatedEncryptionNode.getChildren().get(TagLength.class);
             assertThat(tagLengthNode).isNotNull();
             assertThat(tagLengthNode.getChildren()).isEmpty();
             assertThat(tagLengthNode.asString()).isEqualTo("128");
 
-            // Oid under AuthenticatedEncryption
-            INode oidNode = authenticatedEncryptionNode.getChildren().get(Oid.class);
-            assertThat(oidNode).isNotNull();
-            assertThat(oidNode.getChildren()).isEmpty();
-            assertThat(oidNode.asString()).isEqualTo("2.16.840.1.101.3.4.1");
-
-            // Decrypt under AuthenticatedEncryption
-            INode decryptNode = authenticatedEncryptionNode.getChildren().get(Decrypt.class);
-            assertThat(decryptNode).isNotNull();
-            assertThat(decryptNode.getChildren()).isEmpty();
-            assertThat(decryptNode.asString()).isEqualTo("DECRYPT");
-
-            // Mode under AuthenticatedEncryption
+            // Mode under AuthenticatedEncryption under SecretKey
             INode modeNode = authenticatedEncryptionNode.getChildren().get(Mode.class);
             assertThat(modeNode).isNotNull();
             assertThat(modeNode.getChildren()).isEmpty();
             assertThat(modeNode.asString()).isEqualTo("GCM");
 
-            // SecretKey under AuthenticatedEncryption
-            INode secretKeyNode = authenticatedEncryptionNode.getChildren().get(SecretKey.class);
-            assertThat(secretKeyNode).isNotNull();
-            assertThat(secretKeyNode.getChildren()).hasSize(1);
-            assertThat(secretKeyNode.asString()).isEqualTo("AES");
-
-            // BlockCipher under SecretKey under AuthenticatedEncryption
-            INode blockCipherNode = secretKeyNode.getChildren().get(BlockCipher.class);
-            assertThat(blockCipherNode).isNotNull();
-            assertThat(blockCipherNode.getChildren()).hasSize(4);
-            assertThat(blockCipherNode.asString()).isEqualTo("AES128");
-
-            // KeyLength under BlockCipher under SecretKey under AuthenticatedEncryption
-            INode keyLengthNode1 = blockCipherNode.getChildren().get(KeyLength.class);
-            assertThat(keyLengthNode1).isNotNull();
-            assertThat(keyLengthNode1.getChildren()).isEmpty();
-            assertThat(keyLengthNode1.asString()).isEqualTo("128");
-
-            // Oid under BlockCipher under SecretKey under AuthenticatedEncryption
-            INode oidNode1 = blockCipherNode.getChildren().get(Oid.class);
-            assertThat(oidNode1).isNotNull();
-            assertThat(oidNode1.getChildren()).isEmpty();
-            assertThat(oidNode1.asString()).isEqualTo("2.16.840.1.101.3.4.1");
-
-            // KeyGeneration under BlockCipher under SecretKey under AuthenticatedEncryption
-            INode keyGenerationNode = blockCipherNode.getChildren().get(KeyGeneration.class);
-            assertThat(keyGenerationNode).isNotNull();
-            assertThat(keyGenerationNode.getChildren()).isEmpty();
-            assertThat(keyGenerationNode.asString()).isEqualTo("KEYGENERATION");
-
-            // BlockSize under BlockCipher under SecretKey under AuthenticatedEncryption
-            INode blockSizeNode = blockCipherNode.getChildren().get(BlockSize.class);
+            // BlockSize under AuthenticatedEncryption under SecretKey
+            INode blockSizeNode = authenticatedEncryptionNode.getChildren().get(BlockSize.class);
             assertThat(blockSizeNode).isNotNull();
             assertThat(blockSizeNode.getChildren()).isEmpty();
             assertThat(blockSizeNode.asString()).isEqualTo("128");
 
-            // BlockSize under AuthenticatedEncryption
-            INode blockSizeNode1 = authenticatedEncryptionNode.getChildren().get(BlockSize.class);
-            assertThat(blockSizeNode1).isNotNull();
-            assertThat(blockSizeNode1.getChildren()).isEmpty();
-            assertThat(blockSizeNode1.asString()).isEqualTo("128");
+            // Decrypt under AuthenticatedEncryption under SecretKey
+            INode decryptNode = authenticatedEncryptionNode.getChildren().get(Decrypt.class);
+            assertThat(decryptNode).isNotNull();
+            assertThat(decryptNode.getChildren()).isEmpty();
+            assertThat(decryptNode.asString()).isEqualTo("DECRYPT");
+
+            // KeyLength under AuthenticatedEncryption under SecretKey
+            INode keyLengthNode = authenticatedEncryptionNode.getChildren().get(KeyLength.class);
+            assertThat(keyLengthNode).isNotNull();
+            assertThat(keyLengthNode.getChildren()).isEmpty();
+            assertThat(keyLengthNode.asString()).isEqualTo("128");
+
+            // Oid under AuthenticatedEncryption under SecretKey
+            INode oidNode = authenticatedEncryptionNode.getChildren().get(Oid.class);
+            assertThat(oidNode).isNotNull();
+            assertThat(oidNode.getChildren()).isEmpty();
+            assertThat(oidNode.asString()).isEqualTo("2.16.840.1.101.3.4.1");
         }
     }
 }

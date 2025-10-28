@@ -99,7 +99,7 @@ public class CipherUtil {
         byte[] keyBytes = getPassword(password, 32);
         Key key = new SecretKeySpec(keyBytes, "AES"); // Noncompliant {{(SecretKey) AES}}
         try {
-            Cipher in = Cipher.getInstance("AES/CBC/PKCS5Padding"); //  Noncompliant {{(BlockCipher) AES128-CBC-PKCS5}}
+            Cipher in = Cipher.getInstance("AES/CBC/PKCS5Padding"); // Noncompliant {{(SecretKey) AES}}
             in.init(Cipher.ENCRYPT_MODE, key, new IvParameterSpec(getIV(keyBytes, 16)));
             return in.doFinal(content);
         } catch (Exception exception) {
@@ -118,7 +118,7 @@ public class CipherUtil {
         byte[] keyBytes = getPassword(password, 32);
         Key key = new SecretKeySpec(keyBytes, "AES"); // Noncompliant {{(SecretKey) AES}}
         try {
-            Cipher out = Cipher.getInstance("AES/CBC/PKCS5Padding"); // Noncompliant {{(BlockCipher) AES128-CBC-PKCS5}}
+            Cipher out = Cipher.getInstance("AES/CBC/PKCS5Padding"); // Noncompliant {{(SecretKey) AES}}
             out.init(Cipher.DECRYPT_MODE, key, new IvParameterSpec(getIV(keyBytes, 16)));
             return out.doFinal(content);
         } catch (Exception exception) {
@@ -137,7 +137,7 @@ public class CipherUtil {
         byte[] keyBytes = getPassword(password, 24);
         Key key = new SecretKeySpec(keyBytes, "DESede"); // Noncompliant {{(SecretKey) 3DES}}
         try {
-            Cipher in = Cipher.getInstance("DESede/CBC/PKCS5Padding"); // Noncompliant {{(BlockCipher) 3DES}}
+            Cipher in = Cipher.getInstance("DESede/CBC/PKCS5Padding"); // Noncompliant {{(SecretKey) 3DES}}
             in.init(Cipher.ENCRYPT_MODE, key, new IvParameterSpec(getIV(keyBytes, 8)));
             return in.doFinal(content);
         } catch (Exception exception) {
@@ -156,7 +156,7 @@ public class CipherUtil {
         byte[] keyBytes = getPassword(password, 24);
         Key key = new SecretKeySpec(keyBytes, "DESede"); // Noncompliant {{(SecretKey) 3DES}}
         try {
-            Cipher out = Cipher.getInstance("DESede/CBC/PKCS5Padding"); // Noncompliant {{(BlockCipher) 3DES}}
+            Cipher out = Cipher.getInstance("DESede/CBC/PKCS5Padding"); // Noncompliant {{(SecretKey) 3DES}}
             out.init(Cipher.DECRYPT_MODE, key, new IvParameterSpec(getIV(keyBytes, 8)));
             return out.doFinal(content);
         } catch (Exception exception) {

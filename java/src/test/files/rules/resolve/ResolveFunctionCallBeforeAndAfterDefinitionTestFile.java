@@ -22,7 +22,7 @@ public class ResolveFunctionCallBeforeAndAfterDefinitionTestFile {
     }
 
     public void genCipherAfterDefinitionTest() {
-        Cipher c = genCipher("AES/ECB/PKCS5Padding", Cipher.DECRYPT_MODE); // Noncompliant {{(BlockCipher) AES128-ECB-PKCS5}}
+        Cipher c = genCipher("AES/ECB/PKCS5Padding", Cipher.DECRYPT_MODE); // Noncompliant {{(SecretKey) AES}}
     }
 
 }

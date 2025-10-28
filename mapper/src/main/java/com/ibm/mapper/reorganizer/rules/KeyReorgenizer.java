@@ -19,6 +19,8 @@
  */
 package com.ibm.mapper.reorganizer.rules;
 
+import com.ibm.mapper.model.Algorithm;
+import com.ibm.mapper.model.BlockCipher;
 import com.ibm.mapper.model.INode;
 import com.ibm.mapper.model.Key;
 import com.ibm.mapper.model.PrivateKey;
@@ -28,6 +30,7 @@ import com.ibm.mapper.model.functionality.KeyGeneration;
 import com.ibm.mapper.reorganizer.IReorganizerRule;
 import com.ibm.mapper.reorganizer.builder.ReorganizerRuleBuilder;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -41,6 +44,62 @@ public final class KeyReorgenizer {
     private KeyReorgenizer() {
         // private
     }
+
+    /**
+     * A reorganizer rule for moving a key object under an Algorithm as its parent and replacing the
+     * inner algorithm (if exists) with the outer one.
+     *
+     * <p>This rule applies when an Algorithm node has a SecretKey child, and that SecretKey
+     * contains an inner algorithm. The rule:
+     *
+     * <ul>
+     *   <li>Creates a new SecretKey based on the outer (parent) algorithm
+     *   <li>Moves all children from the old SecretKey to the new one
+     *   <li>Replaces the inner algorithm with the outer algorithm
+     * </ul>
+     */
+    @Nonnull
+    public static final IReorganizerRule MOVE_KEY_UNDER_ALGORITHM_AND_REPLACE_INNER_ALGORITHM =
+            new ReorganizerRuleBuilder()
+                    .createReorganizerRule("MOVE_KEY_UNDER_ALGORITHM_AND_REPLACE_INNER_ALGORITHM")
+                    .forNodeKind(BlockCipher.class)
+                    .withDetectionCondition(
+                            (node, parent, roots) -> {
+                                // Check if the Algorithm node has a SecretKey child
+                                Optional<INode> secretKeyOpt = node.hasChildOfType(SecretKey.class);
+                                if (secretKeyOpt.isEmpty()) {
+                                    return false;
+                                }
+
+                                // Check if the SecretKey has a BlockCipher child (inner algorithm)
+                                INode secretKey = secretKeyOpt.get();
+                                return secretKey.hasChildOfType(BlockCipher.class).isPresent();
+                            })
+                    .perform(
+                            (node, parent, roots) -> {
+                                // Get the SecretKey child
+                                final Optional<INode> secretKeyOpt =
+                                        node.hasChildOfType(SecretKey.class);
+                                if (secretKeyOpt.isEmpty()) {
+                                    return roots;
+                                }
+                                // remove secret key from parent
+                                node.removeChildOfType(SecretKey.class);
+
+                                final SecretKey secretKey = new SecretKey((Algorithm) node);
+                                // Add all the children to the new node
+                                for (Map.Entry<Class<? extends INode>, INode> childKeyValue :
+                                        secretKeyOpt.get().getChildren().entrySet()) {
+                                    secretKey.put(childKeyValue.getValue());
+                                }
+
+                                // Put the parent algorithm into the secret key and replace the
+                                // inner
+                                secretKey.removeChildOfType(BlockCipher.class);
+                                secretKey.put(node);
+
+                                return new ArrayList<>(Collections.singleton(secretKey));
+                            });
 
     @Nonnull
     public static final IReorganizerRule SPECIFY_KEY_TYPE_BY_LOOKING_AT_KEY_GENERATION =
