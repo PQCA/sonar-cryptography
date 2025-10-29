@@ -94,12 +94,14 @@ public class GenerateAssertsHelper {
             e.printStackTrace();
         }
 
-        // Copy the resulting content to the clipboard
-        try {
-            copyFileToClipboard();
-            LOGGER.debug("File content copied to clipboard successfully!");
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (!GraphicsEnvironment.isHeadless()) {
+            // Copy the resulting content to the clipboard
+            try {
+                copyFileToClipboard();
+                LOGGER.debug("File content copied to clipboard successfully!");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
