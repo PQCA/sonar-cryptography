@@ -25,6 +25,7 @@ import com.ibm.mapper.model.INode;
 import com.ibm.mapper.model.Identifier;
 import com.ibm.mapper.model.Protocol;
 import com.ibm.mapper.model.collections.CipherSuiteCollection;
+import com.ibm.mapper.model.protocol.IPSec;
 import com.ibm.mapper.model.protocol.TLS;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,6 +50,7 @@ public class ProtocolComponentBuilder implements IProtocolComponentBuilder {
     protected ProtocolComponentBuilder(
             @Nonnull BiFunction<String, Algorithm, String> algorithmComponentBuilder) {
         this.component = new Component();
+        this.component.setBomRef(UUID.randomUUID().toString());
         this.cryptoProperties = new CryptoProperties();
         this.protocolProperties = new ProtocolProperties();
         this.algorithmComponentBuilder = algorithmComponentBuilder;
@@ -95,6 +97,8 @@ public class ProtocolComponentBuilder implements IProtocolComponentBuilder {
 
         if (type instanceof TLS) {
             protocolProperties.setType(ProtocolType.TLS);
+        } else if (type instanceof IPSec) {
+            protocolProperties.setType(ProtocolType.IPSEC);
         } else {
             protocolProperties.setType(ProtocolType.OTHER);
         }
@@ -140,7 +144,7 @@ public class ProtocolComponentBuilder implements IProtocolComponentBuilder {
                                         if (asset instanceof Algorithm algorithm) {
                                             final String ref =
                                                     this.algorithmComponentBuilder.apply(
-                                                            "", algorithm);
+                                                            component.getBomRef(), algorithm);
                                             algorithmRefs.add(ref);
                                         }
                                     }
@@ -189,7 +193,6 @@ public class ProtocolComponentBuilder implements IProtocolComponentBuilder {
 
         this.component.setType(Component.Type.CRYPTOGRAPHIC_ASSET);
         this.component.setCryptoProperties(this.cryptoProperties);
-        this.component.setBomRef(UUID.randomUUID().toString());
 
         return this.component;
     }
