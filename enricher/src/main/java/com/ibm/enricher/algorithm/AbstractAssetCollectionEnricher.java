@@ -17,25 +17,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.ibm.plugin;
+package com.ibm.enricher.algorithm;
 
-import java.util.List;
+import com.ibm.enricher.Enricher;
+import com.ibm.enricher.IEnricher;
+import com.ibm.mapper.model.INode;
+import com.ibm.mapper.model.collections.AbstractAssetCollection;
+import java.util.ArrayList;
 import javax.annotation.Nonnull;
-import org.sonar.api.config.PropertyDefinition;
-import org.sonar.api.config.PropertyDefinition.ConfigScope;
 
-public final class Configuration {
+public class AbstractAssetCollectionEnricher implements IEnricher {
 
-    private Configuration() {}
-
-    public static @Nonnull List<PropertyDefinition> getPropertyDefinitions() {
-        return List.of(
-                PropertyDefinition.builder(Constants.CBOM_OUTPUT_NAME)
-                        .onConfigScopes(ConfigScope.PROJECT)
-                        .subCategory(Constants.SUB_CATEGORY_GENERAL)
-                        .name("CBOM filename")
-                        .description("Filename for the generated CBOM")
-                        .defaultValue(Constants.CBOM_OUTPUT_NAME_DEFAULT)
-                        .build());
+    @Nonnull
+    @Override
+    public INode enrich(@Nonnull INode node) {
+        if (node instanceof AbstractAssetCollection<? extends INode> aac) {
+            Enricher.enrich(new ArrayList<INode>(aac.getCollection()));
+        }
+        return node;
     }
 }

@@ -17,25 +17,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.ibm.plugin;
+package com.ibm.mapper.model.protocol;
 
-import java.util.List;
+import com.ibm.mapper.model.Protocol;
+import com.ibm.mapper.utils.DetectionLocation;
 import javax.annotation.Nonnull;
-import org.sonar.api.config.PropertyDefinition;
-import org.sonar.api.config.PropertyDefinition.ConfigScope;
 
-public final class Configuration {
+public final class IPSec extends Protocol {
 
-    private Configuration() {}
-
-    public static @Nonnull List<PropertyDefinition> getPropertyDefinitions() {
-        return List.of(
-                PropertyDefinition.builder(Constants.CBOM_OUTPUT_NAME)
-                        .onConfigScopes(ConfigScope.PROJECT)
-                        .subCategory(Constants.SUB_CATEGORY_GENERAL)
-                        .name("CBOM filename")
-                        .description("Filename for the generated CBOM")
-                        .defaultValue(Constants.CBOM_OUTPUT_NAME_DEFAULT)
-                        .build());
+    public IPSec(@Nonnull DetectionLocation detectionLocation) {
+        super(new Protocol("IPSec", detectionLocation), IPSec.class);
     }
 }

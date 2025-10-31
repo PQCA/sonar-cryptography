@@ -87,6 +87,7 @@ import org.cyclonedx.model.Dependency;
 import org.cyclonedx.model.Metadata;
 import org.cyclonedx.model.OrganizationalEntity;
 import org.cyclonedx.model.Service;
+import org.cyclonedx.model.component.crypto.CryptoRef;
 import org.cyclonedx.model.component.evidence.Occurrence;
 import org.cyclonedx.model.metadata.ToolInformation;
 import org.slf4j.Logger;
@@ -201,6 +202,14 @@ public class CBOMOutputFile implements IOutputFile {
             return;
         }
         addComponentAndDependencies(protocol, optionalId.get(), parentBomRef, node);
+
+        Dependency protocolDependency = dependencies.get(protocol.getBomRef());
+        if (protocolDependency != null) {
+            CryptoRef cryptoRef = new CryptoRef();
+            cryptoRef.setRef(
+                    protocolDependency.getDependencies().stream().map(Dependency::getRef).toList());
+            protocol.getCryptoProperties().getProtocolProperties().setCryptoRefArray(cryptoRef);
+        }
     }
 
     private void createCipherSuiteComponent(

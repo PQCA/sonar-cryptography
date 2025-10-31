@@ -20,6 +20,7 @@
 package com.ibm.enricher;
 
 import com.ibm.enricher.algorithm.AESEnricher;
+import com.ibm.enricher.algorithm.AbstractAssetCollectionEnricher;
 import com.ibm.enricher.algorithm.DESEnricher;
 import com.ibm.enricher.algorithm.DHEnricher;
 import com.ibm.enricher.algorithm.DSAEnricher;
@@ -94,7 +95,8 @@ public class Enricher implements IEnricher {
                     new SignatureEnricher(),
                     new TagOrDigestEnricher(),
                     new KEMEnricher(),
-                    new SecretKeyEnricher());
+                    new SecretKeyEnricher(),
+                    new AbstractAssetCollectionEnricher());
 
     /**
      * Enriches the given node with additional information.

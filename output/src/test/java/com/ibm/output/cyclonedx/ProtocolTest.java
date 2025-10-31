@@ -29,11 +29,13 @@ import com.ibm.mapper.model.Version;
 import com.ibm.mapper.model.algorithms.AES;
 import com.ibm.mapper.model.algorithms.DH;
 import com.ibm.mapper.model.algorithms.DSA;
+import com.ibm.mapper.model.algorithms.RSA;
 import com.ibm.mapper.model.algorithms.SHA2;
 import com.ibm.mapper.model.collections.AssetCollection;
 import com.ibm.mapper.model.collections.CipherSuiteCollection;
 import com.ibm.mapper.model.collections.IdentifierCollection;
 import com.ibm.mapper.model.mode.CBC;
+import com.ibm.mapper.model.protocol.IPSec;
 import com.ibm.mapper.model.protocol.TLS;
 import java.util.List;
 import org.cyclonedx.model.Component;
@@ -223,6 +225,8 @@ class ProtocolTest extends TestBase {
                             assertThat(protocolProperties.getVersion()).isEqualTo("1.3");
                             assertThat(protocolProperties.getCipherSuites()).isNotNull();
                             assertThat(protocolProperties.getCipherSuites()).hasSize(1);
+                            assertThat(protocolProperties.getCryptoRefArray()).isNotNull();
+                            assertThat(protocolProperties.getCryptoRefArray().getRef()).hasSize(3);
 
                             final org.cyclonedx.model.component.crypto.CipherSuite cipherSuite =
                                     protocolProperties.getCipherSuites().get(0);
@@ -231,6 +235,39 @@ class ProtocolTest extends TestBase {
 
                             assertThat(cipherSuite.getAlgorithms()).hasSize(3);
                             assertThat(cipherSuite.getIdentifiers()).contains("0x00", "0x6A");
+                        }
+                    }
+                });
+    }
+
+    @Test
+    void protocolOther() {
+        this.assertsNode(
+                () -> {
+                    final IPSec ipsec = new IPSec(detectionLocation);
+                    ipsec.put(new AES(128, new CBC(detectionLocation), detectionLocation));
+                    ipsec.put(new RSA(detectionLocation));
+                    return ipsec;
+                },
+                bom -> {
+                    assertThat(bom.getComponents()).hasSize(3);
+                    assertThat(bom.getComponents().stream().map(Component::getName))
+                            .contains("AES128-CBC", "RSA", "IPSec");
+
+                    for (Component component : bom.getComponents()) {
+                        asserts(component.getEvidence());
+                        assertThat(component.getCryptoProperties()).isNotNull();
+                        final CryptoProperties cryptoProperties = component.getCryptoProperties();
+                        if (cryptoProperties.getAssetType().equals(AssetType.PROTOCOL)) {
+                            assertThat(component.getName()).isEqualTo("IPSec");
+                            assertThat(cryptoProperties.getProtocolProperties()).isNotNull();
+                            final ProtocolProperties protocolProperties =
+                                    cryptoProperties.getProtocolProperties();
+                            assertThat(protocolProperties.getType()).isEqualTo(ProtocolType.IPSEC);
+                            assertThat(protocolProperties.getVersion()).isNull();
+                            assertThat(protocolProperties.getCipherSuites()).isNull();
+                            assertThat(protocolProperties.getCryptoRefArray()).isNotNull();
+                            assertThat(protocolProperties.getCryptoRefArray().getRef()).hasSize(2);
                         }
                     }
                 });
