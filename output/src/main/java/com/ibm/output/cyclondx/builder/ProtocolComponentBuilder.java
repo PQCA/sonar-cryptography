@@ -25,6 +25,7 @@ import com.ibm.mapper.model.INode;
 import com.ibm.mapper.model.Identifier;
 import com.ibm.mapper.model.Protocol;
 import com.ibm.mapper.model.collections.CipherSuiteCollection;
+import com.ibm.mapper.model.protocol.IKE;
 import com.ibm.mapper.model.protocol.IPSec;
 import com.ibm.mapper.model.protocol.TLS;
 import java.util.ArrayList;
@@ -99,6 +100,8 @@ public class ProtocolComponentBuilder implements IProtocolComponentBuilder {
             protocolProperties.setType(ProtocolType.TLS);
         } else if (type instanceof IPSec) {
             protocolProperties.setType(ProtocolType.IPSEC);
+        } else if (type instanceof IKE) {
+            protocolProperties.setType(ProtocolType.IKE);
         } else {
             protocolProperties.setType(ProtocolType.OTHER);
         }
