@@ -23,8 +23,8 @@
     <version>2.0.0-SNAPSHOT</version>
     <name>sonar-cryptography</name>
     <organization>
-        <name>PQCA</name>
-        <url>https://github.com/PQCA</url>
+        <name>cbomkit</name>
+        <url>https://github.com/cbomkit</url>
     </organization>
     <licenses>
         <license>
@@ -56,7 +56,7 @@
         <repository>
             <id>github</id>
             <name>GitHub Packages</name>
-            <url>https://maven.pkg.github.com/PQCA/sonar-cryptography</url>
+            <url>https://maven.pkg.github.com/cbomkit/sonar-cryptography</url>
         </repository>
     </distributionManagement>
 

@@ -19,7 +19,7 @@ To do so, start by opening this repo and `git checkout` to the latest release br
 Open the [`docker-compose.yaml`](../docker-compose.yaml) file and check the `image` argument to make sure that it uses a version of SonarQube supported by our plugin.
 
 You then need to have a `.jar` plugin in the `.SonarQube/plugins/` directory. There are two options for this:
-- Easiest way: download the `.jar` file from the [latest releases](https://github.com/PQCA/sonar-cryptography/releases) GitHub page and move it to this directory. In our case, it is named `sonar-cryptography-plugin-1.2.0.jar`.
+- Easiest way: download the `.jar` file from the [latest releases](https://github.com/cbomkit/sonar-cryptography/releases) GitHub page and move it to this directory. In our case, it is named `sonar-cryptography-plugin-1.2.0.jar`.
 - Alternatively, you can build the plugin from source, as explained in the [Build](../CONTRIBUTING.md#build) paragraph of [`CONTRIBUTING.md`](../CONTRIBUTING.md).
 
 Now, you can run our plugin with SonarQube by following the [Run the Plugin with SonarQube](../CONTRIBUTING.md#run-the-plugin-with-sonarqube) paragraph of [`CONTRIBUTING.md`](../CONTRIBUTING.md).
@@ -149,4 +149,4 @@ If the analysis runs as expected, you should see the results in two ways:
 
 ---
 
-If you did not succeed while following all the steps in this guide, please check previous GitHub [issues](https://github.com/PQCA/sonar-cryptography/issues?q=is%3Aissue) to check if someone else ever had your problem, otherwise feel free to reach us by creating a new GitHub issue.
+If you did not succeed while following all the steps in this guide, please check previous GitHub [issues](https://github.com/cbomkit/sonar-cryptography/issues?q=is%3Aissue) to check if someone else ever had your problem, otherwise feel free to reach us by creating a new GitHub issue.

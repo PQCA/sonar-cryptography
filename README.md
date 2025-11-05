@@ -1,12 +1,12 @@
 # Sonar Cryptography Plugin (CBOMkit-hyperion)
 
-[![License](https://img.shields.io/github/license/PQCA/sonar-cryptography.svg?)](https://opensource.org/licenses/Apache-2.0) <!--- long-description-skip-begin -->
-[![Current Release](https://img.shields.io/github/release/PQCA/sonar-cryptography.svg?logo=IBM)](https://github.com/PQCA/sonar-cryptography/releases)
+[![License](https://img.shields.io/github/license/cbomkit/sonar-cryptography.svg?)](https://opensource.org/licenses/Apache-2.0) <!--- long-description-skip-begin -->
+[![Current Release](https://img.shields.io/github/release/cbomkit/sonar-cryptography.svg?logo=IBM)](https://github.com/cbomkit/sonar-cryptography/releases)
 
 
 This repository contains a SonarQube Plugin that detects cryptographic assets 
 in source code and generates [CBOM](https://cyclonedx.org/capabilities/cbom/).
-It is part of **the [CBOMKit](https://github.com/PQCA/cbomkit) toolset**.
+It is part of **the [CBOMKit](https://github.com/cbomkit) toolset**.
 
 ## Version compatibility
 
@@ -41,13 +41,13 @@ It is part of **the [CBOMKit](https://github.com/PQCA/cbomkit) toolset**.
 > included Docker Compose to set up a development environment. See 
 > [here](CONTRIBUTING.md#build) for instructions.
 
-Copy the plugin (the JAR file from the [latest releases](https://github.com/PQCA/sonar-cryptography/releases))
+Copy the plugin (the JAR file from the [latest releases](https://github.com/cbomkit/sonar-cryptography/releases))
 to `$SONARQUBE_HOME/extensions/plugins` and restart 
 SonarQube ([more](https://docs.sonarqube.org/latest/setup-and-upgrade/install-a-plugin/)).
 
 ## Using
 
-The plugin provides new inventory rules (PQCA Cryptography Repository) regarding the use of cryptography for 
+The plugin provides new inventory rules (Cbomkit Cryptography Repository) regarding the use of cryptography for 
 the supported languages.
 If you enable these rules, a source code scan creates a cryptographic inventory by creating a 
 [CBOM](https://cyclonedx.org/capabilities/cbom/) with all cryptographic assets and writing 
@@ -72,7 +72,7 @@ to start your first scan.
 
 ### Visualizing your CBOM
 
-Once you have scanned your source code with the plugin, and obtained a `cbom.json` file, you can use [PQCA's CBOM Viewer](https://github.com/PQCA/cbomkit) service to know more about it.
+Once you have scanned your source code with the plugin, and obtained a `cbom.json` file, you can use [Cbomkit's CBOM Viewer](https://github.com/cbomkit/cbomkit) service to know more about it.
 It provides you with general insights about the cryptography used in your source code and its compliance with post-quantum safety.
 It also allows you to explore precisely each cryptography asset and its detailed specification, and displays where it appears in your code.
 
@@ -85,8 +85,8 @@ If you encounter difficulties or unexpected results while installing the plugin 
 If you'd like to contribute to Sonar Cryptography Plugin, please take a look at our
 [contribution guidelines](CONTRIBUTING.md). By participating, you are expected to uphold our [code of conduct](CODE_OF_CONDUCT.md).
 
-We use [GitHub issues](https://github.com/PQCA/sonar-cryptography/issues) for tracking requests and bugs. For questions
-start a discussion using [GitHub Discussions](https://github.com/PQCA/sonar-cryptography/discussions).
+We use [GitHub issues](https://github.com/cbomkit/sonar-cryptography/issues) for tracking requests and bugs. For questions
+start a discussion using [GitHub Discussions](https://github.com/cbomkit/sonar-cryptography/discussions).
 
 ## License
 

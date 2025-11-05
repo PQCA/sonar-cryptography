@@ -109,7 +109,7 @@ This will then be useful when we translate the detected findings: we use the bun
 And finally, we can finish the specification of the detection rules by adding top level dependent detection rules with `withDependingDetectionRules(List<IDetectionRule<T>> detectionRules)` (or not, using `withoutDependingDetectionRules()` instead).
 These are similar to the parameter dependent rules, but instead of applying these rules on a parameter, they are applied to the object itself, i.e. to the object with which the rule matched in the first place[^2].
 
-[^2]: Currently, findings of top level dependent detection rules are added below *each* (top level and parameter) detections of the rules in the tree of detected values, *except* for parameter detections using `asChildOfParameterWithId`. More information [here](https://github.com/PQCA/sonar-cryptography/pull/142).
+[^2]: Currently, findings of top level dependent detection rules are added below *each* (top level and parameter) detections of the rules in the tree of detected values, *except* for parameter detections using `asChildOfParameterWithId`. More information [here](https://github.com/cbomkit/sonar-cryptography/pull/142).
 
 > [!TIP]
 > You will find all the classes implementing the action factories, value factories and contexts (that you may use in the functions described above) in the [`model`](../engine/src/main/java/com/ibm/engine/model/) directory of the engine.
